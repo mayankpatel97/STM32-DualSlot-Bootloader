@@ -1,0 +1,15 @@
+../Core/Src/spiflash.c:152:6:println_hex	1
+../Core/Src/spiflash.c:162:16:spi_transfer	1
+../Core/Src/spiflash.c:169:6:WriteEnable	1
+../Core/Src/spiflash.c:178:6:ReadFlashID	1
+../Core/Src/spiflash.c:191:9:ReadFlashStatus	1
+../Core/Src/spiflash.c:200:6:ClearBlockProtectSST1	1
+../Core/Src/spiflash.c:218:6:ClearBlockProtect	7
+../Core/Src/spiflash.c:261:6:ChipErase	1
+../Core/Src/spiflash.c:276:6:sFLASH_WriteEnable	1
+../Core/Src/spiflash.c:298:6:sFLASH_WaitForWriteEnd	2
+../Core/Src/spiflash.c:333:6:sFLASH_WritePage	1
+../Core/Src/spiflash.c:367:6:sFLASH_EraseSector	1
+../Core/Src/spiflash.c:402:6:sFLASH_ReadBuffer	1
+../Core/Src/spiflash.c:434:6:sFLASH_WriteBuffer	8
+../Core/Src/spiflash.c:514:6:sFLASH_GlobalBlockProtectionUnlock	1

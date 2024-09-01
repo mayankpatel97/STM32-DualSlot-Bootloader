@@ -68,7 +68,6 @@
 #define    FLASH_CMD_NOP          0x00    //NOP (No Operation)
 
 
-
 /*
  *  Flash control register mask define
  */
@@ -108,10 +107,7 @@
 #define sFLASH_SPI_SECTOR_SIZE	0x1000      /* 4K Sector size */
 #define sFLASH_SPI_PAGE_SIZE	0x100		/* 256 Byte Page size */
 
-
-
 extern SPI_HandleTypeDef hspi1;
-
 
 struct device_profile {
     uint8_t mfg_id_el;
@@ -122,6 +118,13 @@ struct device_profile {
     unsigned char busyMask_el;
     unsigned long highest_addr_el;
 };
+
+uint8_t fraction,mfg_id,dev_type,dev_id;
+unsigned char block_protection_10[18]; /* global array to store block_protection data */
+const char *teamName, *partName;
+uint8_t busyMask = 0;
+uint32_t highestAddress;
+uint8_t pTxData[32],pRxData[256];
 
 const struct device_profile flash_device[NUM_DEVICES] ={
   //{ mfg_id, dev_typ, dev_id, teamName , partName,  busyMask, highest_addr },
@@ -144,14 +147,6 @@ const struct device_profile flash_device[NUM_DEVICES] ={
     { 0x1F, 0x46, 0x01, "Atmel", "AT26DF161A", 0x01, 0x01FFFFF},
     { 0x00, 0x00, 0x00, "None", "Empty", 0x01, 0x01FFFFF}
 };
-
-uint8_t fraction,mfg_id,dev_type,dev_id;
-unsigned char block_protection_10[18]; /* global array to store block_protection data */
-const char *teamName, *partName;
-uint8_t busyMask = 0;
-uint32_t highestAddress;
-
-uint8_t pTxData[32],pRxData[256];
 
 
 void println_hex(uint8_t X)
@@ -537,87 +532,86 @@ void sFLASH_GlobalBlockProtectionUnlock(void)
 }
 
 
-
-uint8_t rdat[32];
-
-void flashsetup(void)
-{
-	ReadFlashID();
-	uint8_t wdat[] = {1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8};
-	sFLASH_WriteBuffer(wdat, 0x1F0000, sizeof(wdat));
-}
-
-void flashloop(void) {
-  ReadFlashID();
-  sFLASH_ReadBuffer(rdat, 0x1F0000, sizeof(rdat));
-
-  unsigned char counter = 0;
-
-  //println_hex(dev_id);
-  while(busyMask == 0){
-    for (int i = 0; i < NUM_DEVICES; i++)
-    {
-      //println_hex(flash_device[i].dev_id_el);
-      if ((flash_device[i].mfg_id_el == mfg_id) && (flash_device[i].dev_type_el == dev_type) && (flash_device[i].dev_id_el == dev_id)) {
-    	printf("%s\n","--------------");
-        printf("Found it.");
-        teamName = flash_device[i].teamName_el;
-        partName = flash_device[i].partName_el;
-        busyMask = flash_device[i].busyMask_el;
-        printf("%s\n",teamName);
-        printf("%s\n",partName);
-        println_hex(busyMask);
-        printf("%s\n","--------------");
-      }
-    }
-
-
-    if (mfg_id == 0) {
-      counter++;
-        if(counter == 0){
-          printf(partName);
-          printf("Please insert a supported device...");
-        }
-      HAL_Delay(50);
-    } else {
-      printf(partName);
-      printf("Device recognized!");
-      HAL_Delay(1000);
-    }
-    break;
-  }
-
-  unsigned long startTime = HAL_GetTick();
-  unsigned long duration = 0;
-
-  printf("Erasing ");
-  printf(teamName);
-  printf("'s ");
-  printf(partName);
-  printf("...");
-
-  ChipErase();
-
-  while((ReadFlashStatus() & busyMask) == 1) {
-    duration = HAL_GetTick() - startTime;
-    if ((duration > 0) && !(duration % 50)) {
-      printf(".");
-    }
-    HAL_Delay(1);
-  }
-  if (duration > 100){
-    printf("\n");
-  }
-
-  printf("Done! ");
-  printf(teamName);
-  printf("'s ");
-  printf(partName);
-  printf(" took ");
-  printf(duration);
-  printf("%s\n", "ms to erase.");
-
-  while(1){}
-}
+//uint8_t rdat[32];
+//
+//void flashsetup(void)
+//{
+//	ReadFlashID();
+//	uint8_t wdat[] = {1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8};
+//	sFLASH_WriteBuffer(wdat, 0x1F0000, sizeof(wdat));
+//}
+//
+//void flashloop(void) {
+//  ReadFlashID();
+//  sFLASH_ReadBuffer(rdat, 0x1F0000, sizeof(rdat));
+//
+//  unsigned char counter = 0;
+//
+//  //println_hex(dev_id);
+//  while(busyMask == 0){
+//    for (int i = 0; i < NUM_DEVICES; i++)
+//    {
+//      //println_hex(flash_device[i].dev_id_el);
+//      if ((flash_device[i].mfg_id_el == mfg_id) && (flash_device[i].dev_type_el == dev_type) && (flash_device[i].dev_id_el == dev_id)) {
+//    	printf("%s\n","--------------");
+//        printf("Found it.");
+//        teamName = flash_device[i].teamName_el;
+//        partName = flash_device[i].partName_el;
+//        busyMask = flash_device[i].busyMask_el;
+//        printf("%s\n",teamName);
+//        printf("%s\n",partName);
+//        println_hex(busyMask);
+//        printf("%s\n","--------------");
+//      }
+//    }
+//
+//
+//    if (mfg_id == 0) {
+//      counter++;
+//        if(counter == 0){
+//          printf(partName);
+//          printf("Please insert a supported device...");
+//        }
+//      HAL_Delay(50);
+//    } else {
+//      printf(partName);
+//      printf("Device recognized!");
+//      HAL_Delay(1000);
+//    }
+//    break;
+//  }
+//
+//  unsigned long startTime = HAL_GetTick();
+//  unsigned long duration = 0;
+//
+//  printf("Erasing ");
+//  printf(teamName);
+//  printf("'s ");
+//  printf(partName);
+//  printf("...");
+//
+//  ChipErase();
+//
+//  while((ReadFlashStatus() & busyMask) == 1) {
+//    duration = HAL_GetTick() - startTime;
+//    if ((duration > 0) && !(duration % 50)) {
+//      printf(".");
+//    }
+//    HAL_Delay(1);
+//  }
+//  if (duration > 100){
+//    printf("\n");
+//  }
+//
+//  printf("Done! ");
+//  printf(teamName);
+//  printf("'s ");
+//  printf(partName);
+//  printf(" took ");
+//  printf(duration);
+//  printf("%s\n", "ms to erase.");
+//
+//  while(1){}
+//}
 
 
