@@ -1,5 +1,8 @@
 # STM32 Bootloader with USB/UART Firmware Update
 
+🚧 Under Development
+Please note: This firmware is currently in the development stage. Features may change, and the code may contain bugs. Use with caution and report any issues you encounter.
+
 # About
 
 This bootloader for the STM32 microcontroller provides a robust and feature-rich solution for firmware updates. The bootloader is designed to facilitate firmware updates via the internal USB or UART interfaces, utilizing an external SPI Flash to store firmware temporarily.
