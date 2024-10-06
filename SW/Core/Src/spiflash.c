@@ -91,21 +91,25 @@
  * Flash ID, Timing Information Define
  * (The following information could get from device specification)
  */
-#define    sFLASH_MX25L6433F_ID          	0xc22017
-#define    sFLASH_MX25L6433F_ElectronicID	0x16
-#define    sFLASH_MX25L6433F_RESID0			0xc216
-#define    sFLASH_MX25L6433F_RESID1			0x16c2
+#define    FLASH_MX25L6433F_ID          	0xc22017
+#define    FLASH_MX25L6433F_ElectronicID	0x16
+#define    FLASH_MX25L6433F_RESID0			0xc216
+#define    FLASH_MX25L6433F_RESID1			0x16c2
 
-#define		sFLASH_SST26_ID			0xBF
-#define 	sFLASH_SST26_DevID		0x41
-#define 	sFLASH_SST26_DevType	0x26
+//#define		FLASH_SST26_ID			0xBF
+//#define 	FLASH_SST26_DevType	0x26
+//#define 	FLASH_SST26_DevID		0x41
+
+#define		FLASH_ID		0xEF
+#define 	FLASH_DevType	0x40
+#define 	FLASH_DevID		0x17
 
 /*
  * Flash memory organization
  */
-#define sFLASH_SPI_FLASH_SIZE	0x200000    /* 8 Mbytes */
-#define sFLASH_SPI_SECTOR_SIZE	0x1000      /* 4K Sector size */
-#define sFLASH_SPI_PAGE_SIZE	0x100		/* 256 Byte Page size */
+#define FLASH_SPI_FLASH_SIZE	0x200000    /* 8 Mbytes */
+#define FLASH_SPI_SECTOR_SIZE	0x1000      /* 4K Sector size */
+#define FLASH_SPI_PAGE_SIZE	0x100		/* 256 Byte Page size */
 
 extern SPI_HandleTypeDef hspi1;
 
@@ -149,38 +153,39 @@ const struct device_profile flash_device[NUM_DEVICES] ={
 };
 
 
-void println_hex(uint8_t X)
-{
-	char resultString[20];
-    sprintf(resultString, "0x%X", X);
-    // Print the resulting string
-    printf("Result: %s\n", resultString);
-}
+//void println_hex(uint8_t X)
+//{
+//	char resultString[20];
+//    sprintf(resultString, "0x%X", X);
+//    // Print the resulting string
+//    printf("Result: %s\n", resultString);
+//}
 
 
 
-static uint8_t spi_transfer(uint8_t tx)
+static uint8_t spiflash_transfer(uint8_t tx)
 {
 	pTxData[0] = tx;
 	HAL_SPI_TransmitReceive(&hspi1, pTxData, pRxData, 1, 500);
 	return pRxData[0];
 }
 
-void WriteEnable(void)
+void spiflash_writeEnable(void)
 {
     HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
-    spi_transfer(0x06);
+    spiflash_transfer(0x06);
     HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_SET);
 }
 
 
 
-void ReadFlashID(void) {
+void ReadFlashID(void)
+{
 	HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
-	spi_transfer(0x9F);
-    mfg_id = spi_transfer(0x00);
-    dev_type = spi_transfer(0x00);
-    dev_id = spi_transfer(0x00);
+	spiflash_transfer(0x9F);
+    mfg_id = spiflash_transfer(0x00);
+    dev_type = spiflash_transfer(0x00);
+    dev_id = spiflash_transfer(0x00);
     printf("Read ID:");
     printf("  mfg_id: "); println_hex(mfg_id);
     printf("dev_type: "); println_hex(dev_type);
@@ -191,8 +196,8 @@ void ReadFlashID(void) {
 uint8_t ReadFlashStatus(void) {
     unsigned int flashStatus = 0x00;
     HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
-    spi_transfer(0x05);
-    flashStatus = spi_transfer(0x00);
+    spiflash_transfer(0x05);
+    flashStatus = spiflash_transfer(0x00);
     HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_SET);
     return flashStatus;
 }
@@ -200,18 +205,18 @@ uint8_t ReadFlashStatus(void) {
 void ClearBlockProtectSST1(void) {
     uint8_t flashStatus1 = 0x00;
     HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
-    spi_transfer(0x05);
-    flashStatus1 = spi_transfer(0x00);
+    spiflash_transfer(0x05);
+    flashStatus1 = spiflash_transfer(0x00);
     HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_SET);
 
     //modify flashstatus to clear protect bits
     flashStatus1 &= 0xC3;
     HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
-    spi_transfer(0x50);
+    spiflash_transfer(0x50);
     HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
-    spi_transfer(0x01);
-    spi_transfer(flashStatus1);
+    spiflash_transfer(0x01);
+    spiflash_transfer(flashStatus1);
     HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
 }
 
@@ -239,30 +244,28 @@ void ClearBlockProtect(void) {
     block_protection_10[15] = 0x00;
     block_protection_10[16] = 0x00;
     block_protection_10[17] = 0x00;
-    WriteEnable();
+    spiflash_writeEnable();
     HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
-    spi_transfer(0x42);
-    for (i = 18; i > 0; i--) {spi_transfer(block_protection_10[i - 1]);}
+    spiflash_transfer(0x42);
+    for (i = 18; i > 0; i--) {spiflash_transfer(block_protection_10[i - 1]);}
     HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_SET);
 
     //Florian's way for WINBOND
     if ((mfg_id == 0xEF) && (dev_type == 0x40) && (dev_id == 0x17)) {
-        WriteEnable();
+        spiflash_writeEnable();
         HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
-        spi_transfer(0x01);
-        spi_transfer(0x00);
+        spiflash_transfer(0x01);
+        spiflash_transfer(0x00);
         HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_SET);
         while (ReadFlashStatus() & busyMask);
     }
-
-
 }
 
-void ChipErase(void) {
+void spiflash_ChipErase(void) {
     ClearBlockProtect();
-    WriteEnable();
+    spiflash_writeEnable();
     HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
-    spi_transfer(0xC7);
+    spiflash_transfer(0xC7);
     HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_SET);
 }
 
@@ -273,7 +276,7 @@ void ChipErase(void) {
   * @param  None
   * @retval None
   */
-void sFLASH_WriteEnable(void)
+void spiflash_WriteEnable(void)
 {
 	uint8_t txData[1];
 
@@ -295,7 +298,7 @@ void sFLASH_WriteEnable(void)
   * @param  None
   * @retval None
   */
-void sFLASH_WaitForWriteEnd(void)
+void spiflash_WaitForWriteEnd(void)
 {
 	uint8_t txData[1];
 	uint8_t rxData[1];
@@ -327,10 +330,10 @@ void sFLASH_WaitForWriteEnd(void)
   *         to the FLASH.
   * @param  WriteAddr: FLASH's internal address to write to.
   * @param  NumByteToWrite: number of bytes to write to the FLASH, must be equal
-  *         or less than "sFLASH_PAGESIZE" value.
+  *         or less than "FLASH_PAGESIZE" value.
   * @retval None
   */
-void sFLASH_WritePage(uint8_t* pBuffer, uint32_t WriteAddr, uint32_t NumByteToWrite)
+void spiflash_WritePage(uint8_t* pBuffer, uint32_t WriteAddr, uint32_t NumByteToWrite)
 {
 	uint8_t txData[4];
 
@@ -340,7 +343,7 @@ void sFLASH_WritePage(uint8_t* pBuffer, uint32_t WriteAddr, uint32_t NumByteToWr
 	txData[3] = WriteAddr & 0xFF;				/* low nibble address byte to write to */
 
 	/* Enable the write access to the FLASH */
-	sFLASH_WriteEnable();
+	spiflash_WriteEnable();
 
 	/* Select the FLASH: Chip Select low */
 	HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
@@ -355,7 +358,7 @@ void sFLASH_WritePage(uint8_t* pBuffer, uint32_t WriteAddr, uint32_t NumByteToWr
 	HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_SET);
 
 	/* Wait the end of Flash writing */
-	sFLASH_WaitForWriteEnd();
+	spiflash_WaitForWriteEnd();
 }
 
 
@@ -364,7 +367,7 @@ void sFLASH_WritePage(uint8_t* pBuffer, uint32_t WriteAddr, uint32_t NumByteToWr
   * @param  SectorAddr: address of the sector to erase.
   * @retval None
   */
-void sFLASH_EraseSector(uint32_t SectorAddr)
+void spiflash_EraseSector(uint32_t SectorAddr)
 {
 	uint8_t txData[4];
 
@@ -374,7 +377,7 @@ void sFLASH_EraseSector(uint32_t SectorAddr)
 	txData[3] = SectorAddr & 0xFF;				/* low nibble address byte to write to */
 
 	/* Send write enable instruction */
-	sFLASH_WriteEnable();
+	spiflash_WriteEnable();
 
 	/* Select the FLASH: Chip Select low */
 	HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
@@ -386,7 +389,7 @@ void sFLASH_EraseSector(uint32_t SectorAddr)
 	HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_SET);
 
 	/*!< Wait the end of Flash writing */
-	sFLASH_WaitForWriteEnd();
+	spiflash_WaitForWriteEnd();
 
 
 }
@@ -399,7 +402,7 @@ void sFLASH_EraseSector(uint32_t SectorAddr)
   * @param  NumByteToRead: number of bytes to read from the FLASH.
   * @retval None
   */
-void sFLASH_ReadBuffer(uint8_t* pBuffer, uint32_t ReadAddr, uint32_t NumByteToRead)
+void spiflash_ReadBuffer(uint8_t* pBuffer, uint32_t ReadAddr, uint32_t NumByteToRead)
 {
 	uint8_t txData[4];
 
@@ -431,7 +434,7 @@ void sFLASH_ReadBuffer(uint8_t* pBuffer, uint32_t ReadAddr, uint32_t NumByteToRe
   * @param  NumByteToWrite: number of bytes to write to the FLASH.
   * @retval None
   */
-void sFLASH_WriteBuffer(uint8_t* pBuffer, uint32_t WriteAddr, uint32_t NumByteToWrite)
+void spiflash_WriteBuffer(uint8_t* pBuffer, uint32_t WriteAddr, uint32_t NumByteToWrite)
 {
 	uint32_t NumOfPage = 0;
 	uint32_t NumOfSingle = 0;
@@ -439,68 +442,68 @@ void sFLASH_WriteBuffer(uint8_t* pBuffer, uint32_t WriteAddr, uint32_t NumByteTo
 	uint32_t count = 0;
 	uint32_t temp = 0;
 
-	Addr = WriteAddr % sFLASH_SPI_PAGE_SIZE;
-	count = sFLASH_SPI_PAGE_SIZE - Addr;
-	NumOfPage =  NumByteToWrite / sFLASH_SPI_PAGE_SIZE;
-	NumOfSingle = NumByteToWrite % sFLASH_SPI_PAGE_SIZE;
+	Addr = WriteAddr % FLASH_SPI_PAGE_SIZE;
+	count = FLASH_SPI_PAGE_SIZE - Addr;
+	NumOfPage =  NumByteToWrite / FLASH_SPI_PAGE_SIZE;
+	NumOfSingle = NumByteToWrite % FLASH_SPI_PAGE_SIZE;
 
-	if (Addr == 0) /* WriteAddr is sFLASH_PAGESIZE aligned  */
+	if (Addr == 0) /* WriteAddr is FLASH_PAGESIZE aligned  */
 	{
-		if (NumOfPage == 0) /* NumByteToWrite < sFLASH_PAGESIZE */
+		if (NumOfPage == 0) /* NumByteToWrite < FLASH_PAGESIZE */
 		{
-			sFLASH_WritePage(pBuffer, WriteAddr, NumByteToWrite);
+			spiflash_WritePage(pBuffer, WriteAddr, NumByteToWrite);
 		}
-		else /* NumByteToWrite > sFLASH_PAGESIZE */
+		else /* NumByteToWrite > FLASH_PAGESIZE */
 		{
 			while (NumOfPage--)
 			{
-				sFLASH_WritePage(pBuffer, WriteAddr, sFLASH_SPI_PAGE_SIZE);
-				WriteAddr +=  sFLASH_SPI_PAGE_SIZE;
-				pBuffer += sFLASH_SPI_PAGE_SIZE;
+				spiflash_WritePage(pBuffer, WriteAddr, FLASH_SPI_PAGE_SIZE);
+				WriteAddr +=  FLASH_SPI_PAGE_SIZE;
+				pBuffer += FLASH_SPI_PAGE_SIZE;
 			}
 
-			sFLASH_WritePage(pBuffer, WriteAddr, NumOfSingle);
+			spiflash_WritePage(pBuffer, WriteAddr, NumOfSingle);
 		}
 	}
-	else /* WriteAddr is not sFLASH_PAGESIZE aligned  */
+	else /* WriteAddr is not FLASH_PAGESIZE aligned  */
 	{
-		if (NumOfPage == 0) /* NumByteToWrite < sFLASH_PAGESIZE */
+		if (NumOfPage == 0) /* NumByteToWrite < FLASH_PAGESIZE */
 		{
-			if (NumOfSingle > count) /* (NumByteToWrite + WriteAddr) > sFLASH_PAGESIZE */
+			if (NumOfSingle > count) /* (NumByteToWrite + WriteAddr) > FLASH_PAGESIZE */
 			{
 				temp = NumOfSingle - count;
 
-				sFLASH_WritePage(pBuffer, WriteAddr, count);
+				spiflash_WritePage(pBuffer, WriteAddr, count);
 				WriteAddr +=  count;
 				pBuffer += count;
 
-				sFLASH_WritePage(pBuffer, WriteAddr, temp);
+				spiflash_WritePage(pBuffer, WriteAddr, temp);
 			}
 			else
 			{
-				sFLASH_WritePage(pBuffer, WriteAddr, NumByteToWrite);
+				spiflash_WritePage(pBuffer, WriteAddr, NumByteToWrite);
 			}
 		}
-		else /* NumByteToWrite > sFLASH_PAGESIZE */
+		else /* NumByteToWrite > FLASH_PAGESIZE */
 		{
 			NumByteToWrite -= count;
-			NumOfPage =  NumByteToWrite / sFLASH_SPI_PAGE_SIZE;
-			NumOfSingle = NumByteToWrite % sFLASH_SPI_PAGE_SIZE;
+			NumOfPage =  NumByteToWrite / FLASH_SPI_PAGE_SIZE;
+			NumOfSingle = NumByteToWrite % FLASH_SPI_PAGE_SIZE;
 
-			sFLASH_WritePage(pBuffer, WriteAddr, count);
+			spiflash_WritePage(pBuffer, WriteAddr, count);
 			WriteAddr +=  count;
 			pBuffer += count;
 
 			while (NumOfPage--)
 			{
-				sFLASH_WritePage(pBuffer, WriteAddr, sFLASH_SPI_PAGE_SIZE);
-				WriteAddr +=  sFLASH_SPI_PAGE_SIZE;
-				pBuffer += sFLASH_SPI_PAGE_SIZE;
+				spiflash_WritePage(pBuffer, WriteAddr, FLASH_SPI_PAGE_SIZE);
+				WriteAddr +=  FLASH_SPI_PAGE_SIZE;
+				pBuffer += FLASH_SPI_PAGE_SIZE;
 			}
 
 			if (NumOfSingle != 0)
 			{
-				sFLASH_WritePage(pBuffer, WriteAddr, NumOfSingle);
+				spiflash_WritePage(pBuffer, WriteAddr, NumOfSingle);
 			}
 		}
 	}
@@ -511,14 +514,14 @@ void sFLASH_WriteBuffer(uint8_t* pBuffer, uint32_t WriteAddr, uint32_t NumByteTo
   * @param  None
   * @retval None
   */
-void sFLASH_GlobalBlockProtectionUnlock(void)
+void spiflash_GlobalBlockProtectionUnlock(void)
 {
 	uint8_t txData[1];
 
 	txData[0] = FLASH_CMD_ULBPR;
 
 	/* Send write enable instruction */
-	sFLASH_WriteEnable();
+	spiflash_WriteEnable();
 
 	/* Select the FLASH: Chip Select low */
 	HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);

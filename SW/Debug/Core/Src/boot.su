@@ -1,4 +1,6 @@
-../Core/Src/boot.c:75:10:calculate_crc16	24	static
-../Core/Src/boot.c:94:6:USB_VCP_ReceiveCallback	24	static
-../Core/Src/boot.c:162:13:send_reponse_packet	24	static
-../Core/Src/boot.c:174:6:process_packet	32	static
+../Core/Src/boot.c:80:10:calculate_crc16	24	static
+../Core/Src/boot.c:99:6:USB_VCP_ReceiveCallback	24	static
+../Core/Src/boot.c:169:13:send_response_packet	24	static
+../Core/Src/boot.c:181:6:process_packet	32	static
+../Core/Src/boot.c:256:6:writeDataChunk	16	static
+../Core/Src/boot.c:262:6:UpdateFirmware	4	static

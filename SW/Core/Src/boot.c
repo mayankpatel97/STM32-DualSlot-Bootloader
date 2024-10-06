@@ -13,6 +13,7 @@
 #define PACKET_START_MARKER 0x55
 #define PACKET_END_MARKER 0xAA
 #define MAX_PACKET_SIZE 256
+#define FW_ADDR_SPIFLASH (uint32_t) 0x00000
 
 typedef enum {
     WAIT_FOR_START,
@@ -34,15 +35,6 @@ typedef enum {
     DFU_JUMP_TO_APP
 } dfu_stat_t;
 
-PacketState packet_state = WAIT_FOR_START;
-uint8_t packet[MAX_PACKET_SIZE];
-uint8_t payload[MAX_PACKET_SIZE - 6];
-uint16_t packet_index = 0;
-uint16_t payload_index = 0;
-uint8_t cmd = 0;
-uint8_t len = 0;
-uint16_t received_crc = 0;
-dfu_stat_t dfu_stat;
 typedef enum
 {
 	DFU_OK,
@@ -66,12 +58,24 @@ typedef struct
 	uint32_t fw_ver;
 }fw_info_t;
 
+PacketState packet_state = WAIT_FOR_START;
+uint8_t packet[MAX_PACKET_SIZE];
+uint8_t payload[MAX_PACKET_SIZE - 6];
+uint16_t packet_index = 0;
+uint16_t payload_index = 0;
+uint8_t cmd = 0;
+uint8_t len = 0;
+uint16_t received_crc = 0;
+dfu_stat_t dfu_stat;
 uint32_t total_fw_len,received_fw_len;
 uint32_t fw_ver;
 uint16_t fw_crc;
 uint16_t payload_len,packet_len;
+uint32_t fw_index;
 
 void process_packet(void);
+void writeDataChunk(uint8_t *dat, uint16_t length);
+void UpdateFirmware(void);
 
 uint16_t calculate_crc16(uint8_t *data, uint16_t length)
 {
@@ -162,8 +166,7 @@ void USB_VCP_ReceiveCallback(uint8_t* Buf, uint32_t *Len)
 }
 
 
-
-static void send_reponse_packet(dfu_stat_t cmd, RESP_CODE response_code)
+static void send_response_packet(dfu_stat_t cmd, RESP_CODE response_code)
 {
 	rep_packet_t resp;
 	resp.start_byte = PACKET_START_MARKER;
@@ -191,19 +194,19 @@ void process_packet(void)
 		printf("0x%02X ", payload[i]);
 	}
 	printf("\n");
-
-
 	/* process packet here */
 	switch(cmd)
 	{
 		case DFU_START:
 			printf("Start packet!\n");
-			send_reponse_packet(DFU_START,DFU_OK);
+			send_response_packet(DFU_START,DFU_OK);
 			dfu_stat = DFU_ERASE_MEM;
 			break;
+
 		case DFU_ERASE_MEM:
 			/* erase flash sectors */
-
+			spiflash_ChipErase();
+			send_response_packet(DFU_ERASE_MEM,DFU_OK);
 			break;
 		case DFU_HEADER:
 
@@ -215,14 +218,14 @@ void process_packet(void)
 			fw_ver		 = fw_info.fw_ver;
 			fw_crc		 = fw_info.fw_crc;
 			dfu_stat = DFU_DATA;
-			send_reponse_packet(DFU_HEADER,DFU_OK);
+			send_response_packet(DFU_HEADER,DFU_OK);
 			break;
 		case DFU_DATA:
 			/* write payload in to memory */
 
-
+			writeDataChunk(payload, payload_len);
 			received_fw_len += payload_len;
-			send_reponse_packet(DFU_START,received_fw_len > total_fw_len ? DFU_ERROR : DFU_OK);
+			send_response_packet(DFU_START,received_fw_len > total_fw_len ? DFU_ERROR : DFU_OK);
 			break;
 		case DFU_END:
 			uint8_t crc_check_ok=0;
@@ -233,10 +236,14 @@ void process_packet(void)
 			}
 
 
-			send_reponse_packet(DFU_DATA,received_fw_len == total_fw_len && crc_check_ok? DFU_OK:DFU_ERROR);
+			send_response_packet(DFU_DATA,received_fw_len == total_fw_len && crc_check_ok? DFU_OK:DFU_ERROR);
 			break;
 		case DFU_UPDATE_FW:
+			uint8_t checksumMatched=0;
 			/* copy firmware from flash memory to mcu mem */
+			UpdateFirmware();
+			/* perform checksum here */
+			send_response_packet(DFU_DATA,checksumMatched ? DFU_OK:DFU_ERROR);
 			break;
 		case DFU_JUMP_TO_APP:
 			break;
@@ -246,6 +253,16 @@ void process_packet(void)
 	}
 }
 
+void writeDataChunk(uint8_t *dat, uint16_t length)
+{
+	spiflash_WriteBuffer(dat, FW_ADDR_SPIFLASH + fw_index, length);
+	fw_index += length;
+}
+
+void UpdateFirmware(void)
+{
+
+}
 
 // memory organisation
 // start at addr 0x0
