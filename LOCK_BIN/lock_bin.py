@@ -113,7 +113,6 @@ def lock_bin(input_file, version, fw_id, fw_name, output_file):
     #print(Fore.MAGENTA + "Generated AES-128 encryption key." + Style.RESET_ALL)
 
     # Encrypt the firmware
-    #encrypted_firmware = bin_data
     encrypted_firmware = encrypt_firmware(bin_data, bytearray(KEY))
     print(Fore.GREEN + "Firmware successfully encrypted." + Style.RESET_ALL)
 
