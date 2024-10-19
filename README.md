@@ -3,10 +3,9 @@
 🚧 Under Development
 Please note: This firmware is currently in the development stage. Features may change, and the code may contain bugs. Use with caution and report any issues you encounter.
 
-![Block_Diagram](block_diagram.png)
-
-
 This bootloader for the STM32 microcontroller provides a robust and feature-rich solution for firmware updates. The bootloader is designed to facilitate firmware updates via the internal USB or UART interfaces, utilizing an external SPI Flash to store firmware temporarily.
+
+![Block_Diagram](block_diagram.png)
 
 # Key Features
 
@@ -14,7 +13,7 @@ This bootloader for the STM32 microcontroller provides a robust and feature-rich
   
 - Firmware Rollback: In case of an update failure, the bootloader can revert to the previous working firmware, ensuring the device remains operational.
   
-- CRC16 Validation: Each firmware stored in the SPI Flash is validated using CRC16 checks to ensure data integrity and prevent corrupted firmware from being executed.
+- CRC32 Validation: Each firmware stored in the SPI Flash is validated using CRC32 checks to ensure data integrity and prevent corrupted firmware from being executed.
 
 - Encrypted Storage: The bootloader keeps all firmware data stored in SPI Flash in an encrypted form, enhancing security against unauthorized access.
 
@@ -22,6 +21,34 @@ This bootloader for the STM32 microcontroller provides a robust and feature-rich
 
 - External Python Script: A Python script is provided to assist with loading new firmware onto the device. This script also facilitates version reporting and other bootloader-related operations.
 
+# Software Blocks
+ 1. Lock Bin (Python Software for Encryption)
+   - Purpose: This Python tool encrypts the firmware (`FW FILE`) and attaches crucial metadata like firmware version, firmware name, firmware ID, build time, and date to the output file (`BIN FILE`).
+   - Process: 
+     - It takes inputs including the firmware version, firmware name, firmware ID, build time, and date from the user.
+     - The `Lock Bin` tool combines these inputs with the firmware file and encrypts the package to ensure its security during transmission.
+     - The output is a binary file (`BIN FILE`) that securely contains the encrypted firmware along with the embedded metadata.
+   - Output: A secure, encrypted `.fw` file that contains all the metadata, including build time and date.
+
+ 2. Host App (Firmware Upload Application)
+   - Purpose: The `Host App` is responsible for transmitting the encrypted firmware file to the microcontroller.
+   - Process: 
+     - It reads the encrypted `.fw` file, extracts the necessary metadata for logging or validation purposes, and establishes a connection with the microcontroller via a COM port (e.g., USB/UART).
+     - The app then transfers the encrypted firmware to the bootloader running on the microcontroller.
+   - Functionality: Facilitates the communication between the microcontroller and the host, ensuring that the firmware is properly uploaded.
+
+ 3. Bootloader (Running on Microcontroller)
+   - Purpose: The bootloader handles the firmware update process within the microcontroller.
+   - Process: 
+     - It receives the encrypted firmware and metadata from the `Host App` via USB/UART.
+     - The bootloader verifies the integrity and authenticity of the firmware using the metadata (version, name, FW ID).
+     - It then decrypts the firmware and installs it on the microcontroller, handling any necessary checks or updates.
+     - It can also maintain logs or trigger rollback if an issue occurs during the update process.
+   - Responsibilities: 
+     - Safely receive, verify, and install the encrypted firmware.
+     - Ensure integrity and correctness based on the metadata.
+
+This pipeline securely handles firmware updates, ensuring the integrity of the process from encryption to installation. The addition of build time and date in the `.fw` file offers further traceability for each firmware version.
 
 # Prerequisites
 
