@@ -19,6 +19,14 @@ import time
 import serial.tools
 import serial.tools.list_ports
 
+
+START_BYTE = 0xAA
+END_BYTE = 0xBB
+
+PACKET_START = 0x01
+PACKET_HEADER = 0x02
+
+
 # Initialize colorama
 init(autoreset=True)
 
@@ -52,7 +60,6 @@ def write_byte_array(port, byte_array):
         print(Fore.RED + f"An error occurred: {e}")
 
 
-start_packet = {0x01, 0x02, 0x03, 0x04}
 
 def serial_connect(port, baudrate):
     # Open the serial port
@@ -60,11 +67,30 @@ def serial_connect(port, baudrate):
     print(f"Connected to {port} at {baudrate} baud.")
     return ser
 
-START_BYTE = 0xAA
-END_BYTe = 0xBB
+
+def calculate_crc16(data, length):
+    crc = 0xFFFF
+    poly = 0x2024
+
+    for i in range(length):
+        crc ^= (data[i] << 8)
+        for j in range(8):
+            if crc & 0x8000:
+                crc = (crc << 1) ^ poly
+            else:
+                crc <<= 1
+
+    return crc & 0xFFFF  # Ensure it stays within 16 bits
+
 
 def serial_sendPacket(port,cmd,payload, length):
     head = bytearray([START_BYTE, cmd, length])
+    crc16 = calculate_crc16(payload, length)
+    crc16_byteArray = crc16.to_bytes(2, byteorder='big')
+    packet = head + payload + crc16_byteArray + bytearray([END_BYTE])
+    port.write(packet)
+    print(f"sent({cmd}) : {packet}")
+
 
 def firmware_file_valid(file_path):
     # Check if the file exists
@@ -130,8 +156,15 @@ if __name__ == "__main__":
         exit(1)
     
     print(Fore.GREEN + "Valid Firmware")
-    byte_array = bytearray([0xDE, 0xAD, 0xBE, 0xEF, 0xBA, 0xAD, 0xF0, 0x0D])
-    board.write(byte_array)
+
+    decision = input("Press Y to update and N to abort. ")
+
+    if decision == "n" or decision == "N":
+        print(Fore.RED + "firmware update abort.")
+        exit(1)
+
+    print("Updating firmware...")
+    serial_sendPacket(board, PACKET_START, bytearray([0x01]), 1)
     print("packet sent")
     board.close()
 
