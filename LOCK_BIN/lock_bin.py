@@ -29,6 +29,7 @@ from Crypto.Random import get_random_bytes
 import zlib
 # import colorma module
 from colorama import init, Fore, Back, Style
+import json
 
 # Initialize Colorama
 init()
@@ -37,9 +38,9 @@ init()
 #print(Fore.RED + 'This text is red')
 
 # Constants
-ORG_NAME = "MAYANK"  # Owner name
+
 BLOCK_SIZE = 16  # AES block size
-METADATA_SIZE = 128  # Updated metadata size in bytes
+METADATA_SIZE = 256  # Updated metadata size in bytes
 FW_NAME_SIZE = 32  # Firmware name size in metadata
 ORG_NAME_SIZE = 32  # Organization name size in metadata
 KEY = 'encryptionkey123'.encode('utf-8')
@@ -55,29 +56,6 @@ def unpad(data):
     """Unpad the data."""
     return data[:-data[-1]]
 
-def calculate_crc32(data):
-    """Calculate CRC32 of the data."""
-    return zlib.crc32(data) & 0xFFFFFFFF
-
-def create_metadata(crc32, version, fw_id, fw_name):
-    """Create 128-byte metadata."""
-    build_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    metadata = struct.pack('<I', crc32)  # CRC32 is 4 bytes
-
-    # Add version, fw_id, and fw_name (adjusted sizes for metadata packing)
-    version = version[:8].ljust(8, '\x00')  # 8 bytes for version
-    fw_id = fw_id[:8].ljust(8, '\x00')  # 8 bytes for firmware ID
-    fw_name = fw_name[:FW_NAME_SIZE].ljust(FW_NAME_SIZE, '\x00')  # 32 bytes for firmware name
-    build_time = build_time[:19].ljust(19, '\x00')  # 19 bytes for date and time
-
-    metadata += version.encode('utf-8')
-    metadata += fw_id.encode('utf-8')
-    metadata += fw_name.encode('utf-8')
-    metadata += build_time.encode('utf-8')
-    metadata += ORG_NAME[:ORG_NAME_SIZE].ljust(ORG_NAME_SIZE, '\x00').encode('utf-8')  # 32 bytes for organization name
-
-    return metadata.ljust(METADATA_SIZE, b'\x00')
-
 def encrypt_firmware(data, key):
     """Encrypt the firmware using AES-128-CBC."""
     iv = get_random_bytes(AES.block_size)
@@ -85,11 +63,116 @@ def encrypt_firmware(data, key):
     encrypted_data = cipher.encrypt(pad(data))
     return iv + encrypted_data  # Prepend IV for decryption
 
-def lock_bin(input_file, version, fw_id, fw_name, output_file):
-    """Main function to generate encrypted .fw file."""
-    # Print starting message in green
-    print(Fore.GREEN + "Starting the firmware encryption process..." + Style.RESET_ALL)
+def extract_string_between(input_string, start_char, end_char):
+    # Find the positions of the start and end characters
+    start_index = input_string.find(start_char)
+    end_index = input_string.find(end_char, start_index + 1)
+    
+    # Check if both characters are found
+    if start_index != -1 and end_index != -1:
+        # Extract the string between the two characters
+        return input_string[start_index + 1:end_index]
+    else:
+        return "Characters not found in the string."
 
+def firmware_file_valid(input_path_string):
+
+    return_stat = True
+    if "'" in input_path_string:
+        file_path = extract_string_between(input_path_string,"'","'")
+    elif '"' in input_path_string:
+        file_path = extract_string_between(input_path_string,'"','"')
+    else:
+        file_path = input_path_string
+    # Check if the file exists
+    if not os.path.isfile(file_path):
+        print(f"File '{file_path}' does not exist.")
+        return_stat = False
+
+    return return_stat, file_path
+
+def calculate_crc32(data):
+    """Calculate CRC32 checksum of the given data."""
+    crc = 0xFFFFFFFF  # Initialize CRC to all bits set to 1
+
+    for byte in data:
+        crc ^= byte  # XOR byte into the least-significant byte of crc
+        for _ in range(8):  # Process each bit
+            # Check if the least significant bit is set
+            if crc & 1:
+                crc = (crc >> 1) ^ 0xEDB88320  # Polynomial used in CRC32
+            else:
+                crc >>= 1  # Just shift right
+
+    # Finalize the CRC value
+    return crc ^ 0xFFFFFFFF  # Invert all bits to get the final CRC32 value
+
+    
+def lock_bin():
+    """Main function to generate encrypted .fw file."""
+    input_file = ''
+    '''
+    metadata_dict = {"build_time": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 
+                    "version"   : 1.0,
+                    "fw_id"     : 30,
+                    "fw_name"   : led blink,
+                    "owner"     : "Mayank"
+                    "crc"       : 2345656
+                    }
+    '''
+    metadata_dict = {}
+    state = 0
+    while True:
+
+        if  state == 0:
+            input_path_string = input("Drag and drop input file below.\n\n")
+            valid, input_file = firmware_file_valid(input_path_string) 
+            if valid == False:  print(Fore.RED + "Invalid bin file.") 
+            else:
+                print(Fore.GREEN + "Valid binary file")
+                state += 1
+
+            print(Fore.RESET)
+
+        elif    state == 1:
+            version_input = input("\nEnter Version Number\n")
+            try:
+                metadata_dict["version"] = int(version_input)
+                state += 1
+            except:
+                print(Fore.RED + "Invalid version number") 
+
+        
+        elif    state == 2:
+            fw_id = input("\nEnter firmware ID number\n")
+
+            try:
+                metadata_dict["fw_id"] = int(fw_id)
+                state += 1
+            except:
+                print(Fore.RED + "Invalid firmware ID number") 
+
+        elif    state == 3:
+            fw_name = input("\nEnter firmware name\n")
+            if len(fw_name) > 64: 
+                print(Fore.RED + "firmware name out of range") 
+                continue
+
+            metadata_dict["fw_name"] = fw_name
+            state += 1
+
+        elif    state == 4:
+            owner = input("\nEnter owner info\n")
+            if len(owner) > 64: 
+                print(Fore.RED + "ownner info out of range") 
+                continue
+
+            metadata_dict["owner"] = owner
+            state += 1
+        else:
+            break
+
+    
     # Read binary input file
     try:
         with open(input_file, 'rb') as f:
@@ -99,38 +182,38 @@ def lock_bin(input_file, version, fw_id, fw_name, output_file):
         print(Fore.RED + f"Error: Input file {input_file} not found!" + Style.RESET_ALL)
         return
 
+    
     # Calculate CRC32 for the binary file
     crc32 = calculate_crc32(bin_data)
     print(Fore.YELLOW + f"Calculated CRC32: {crc32:#010x}" + Style.RESET_ALL)
-
-    # Create metadata
-    metadata = create_metadata(crc32, version, fw_id, fw_name)
-    print(Fore.CYAN + "Generated firmware metadata:" + Style.RESET_ALL)
-    print(Fore.CYAN + metadata.hex() + Style.RESET_ALL)
-
-    # Generate AES-128 encryption key (fixed or derived from a secret)
-    #key = get_random_bytes(16)
-    #print(Fore.MAGENTA + "Generated AES-128 encryption key." + Style.RESET_ALL)
+    metadata_dict["crc32"] = crc32
+    metadata_dict["build_date"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    metadata_dict["size"] = len(bin_data)
+    metadata_str = json.dumps(metadata_dict)
+    metadata_byteArray = bytearray(metadata_str, 'utf-8')
+    print("metadata len: ", len(metadata_byteArray))
+    print("meta data: ", metadata_dict)
+    
+    # make the meta data 256 byte
+    metadata = metadata_byteArray + bytearray(METADATA_SIZE - len(metadata_byteArray))
+    # Print starting message in green
+    print(Fore.GREEN + "Starting the firmware encryption process..." + Style.RESET_ALL)
 
     # Encrypt the firmware
     encrypted_firmware = encrypt_firmware(bin_data, bytearray(KEY))
+    output_content = metadata + encrypted_firmware
+    crc32 = calculate_crc32(output_content)
+    crc32_byteArray = crc32.to_bytes(4, byteorder='big', signed=False)
     print(Fore.GREEN + "Firmware successfully encrypted." + Style.RESET_ALL)
-
+    output_file = "output.ebin"
     # Write metadata + encrypted firmware to output .fw file
     with open(output_file, 'wb') as f:
-        f.write(metadata)  # Write metadata (not encrypted)
-        f.write(encrypted_firmware)  # Write encrypted firmware
+        f.write(crc32_byteArray + output_content)  # Write metadata (not encrypted)
 
     print(Fore.GREEN + f"Generated {output_file} successfully." + Style.RESET_ALL)
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description="Lock Bin - Encrypt firmware with metadata")
-    parser.add_argument('input_file', help="Input .bin file")
-    parser.add_argument('version', help="Firmware version")
-    parser.add_argument('fw_id', help="Firmware ID")
-    parser.add_argument('fw_name', help="Firmware name")
-    parser.add_argument('output_file', help="Output .fw file")
 
-    args = parser.parse_args()
+    lock_bin()
 
-    lock_bin(args.input_file, args.version, args.fw_id, args.fw_name, args.output_file)
+

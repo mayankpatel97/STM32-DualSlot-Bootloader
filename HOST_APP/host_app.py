@@ -15,6 +15,7 @@ from colorama import init, Fore, Back, Style
 import serial
 from colorama import init, Fore, Back, Style
 import time
+import json
 
 import serial.tools
 import serial.tools.list_ports
@@ -100,11 +101,11 @@ def firmware_file_valid(file_path):
     
     # Check the file extension
     file_extension = os.path.splitext(file_path)[1]  # Get the extension
-    if file_extension == '.fw':
-        print(f"File '{file_path}' exists and has the correct .fw extension.")
+    if file_extension == '.ebin':
+        #print(f"File '{file_path}' exists and has the correct .fw extension.")
         return True
     else:
-        print(f"File '{file_path}' exists but does not have a .fw extension.")
+        #print(f"File '{file_path}' exists but does not have a .fw extension.")
         return False
 
 def extract_string_between(input_string, start_char, end_char):
@@ -118,6 +119,46 @@ def extract_string_between(input_string, start_char, end_char):
         return input_string[start_index + 1:end_index]
     else:
         return "Characters not found in the string."
+
+
+def calculate_crc32(data):
+    """Calculate CRC32 checksum of the given data."""
+    crc = 0xFFFFFFFF  # Initialize CRC to all bits set to 1
+
+    for byte in data:
+        crc ^= byte  # XOR byte into the least-significant byte of crc
+        for _ in range(8):  # Process each bit
+            # Check if the least significant bit is set
+            if crc & 1:
+                crc = (crc >> 1) ^ 0xEDB88320  # Polynomial used in CRC32
+            else:
+                crc >>= 1  # Just shift right
+
+    # Finalize the CRC value
+    return crc ^ 0xFFFFFFFF  # Invert all bits to get the final CRC32 value
+
+def string_to_dict(json_string):
+    """Convert a JSON string to a dictionary."""
+    try:
+        dictionary = json.loads(json_string)
+        return dictionary
+    except json.JSONDecodeError:
+        raise ValueError("Invalid JSON string")
+
+def fetch(byte_array, start_char, end_char):
+    # Convert characters to bytes
+    start_byte = start_char.encode()  # Convert to byte
+    end_byte = end_char.encode()  # Convert to byte
+
+    # Find the starting index
+    start_index = byte_array.find(start_byte)  # Find the index of the starting character
+    # Find the ending index
+    end_index = byte_array.find(end_byte, start_index + 1)  # Find the index of the ending character
+
+    if start_index != -1 and end_index != -1:  # Check if both characters are found
+        return byte_array[start_index:end_index + 1]  # Return the slice including both characters
+    else:
+        return None  # Return None if either character is not found
     
 if __name__ == "__main__":
     print(Fore.GREEN + "Running host app.")
@@ -155,16 +196,61 @@ if __name__ == "__main__":
         print(Fore.RED + "Invalid firmware.") 
         exit(1)
     
+    #remove below line 
+    #file_path = 'D:/software projects/STM32-SPIFLashLoader/HOST_APP/output.ebin'
+    
+    print("Updating firmware...")
+    fw_file = open(file_path,'rb')
+    fw = fw_file.read()
+
+    file_crc_stored = int.from_bytes(fw[0:4], byteorder='big', signed=False)
+    file_crc_calculated = calculate_crc32(fw[4:])
+
+    print(f'crc calculated: {file_crc_calculated}, stored: {file_crc_stored}')
+
+    if file_crc_stored != file_crc_calculated:
+        print(Fore.RED + "corrupt ebin file.")
+        exit(1)
+
     print(Fore.GREEN + "Valid Firmware")
+    print(Fore.RESET + "Fetching details")
+    metadata_chunk = fw[4:256]
+    metadata_byteArr = fetch(metadata_chunk,'{','}')
+    metadata = json.loads(metadata_byteArr)
+    print(metadata)
+
+    print(Fore.BLUE + f'''
+              fw         : {metadata["fw_name"]}
+              owned by   : {metadata["owner"]}
+              version    : {metadata["version"]}
+              fw id      : {metadata["fw_id"]}
+              fw size    : {metadata["size"]}
+              build date : {metadata["build_date"]}
+          ''')
 
     decision = input("Press Y to update and N to abort. ")
+
 
     if decision == "n" or decision == "N":
         print(Fore.RED + "firmware update abort.")
         exit(1)
 
-    print("Updating firmware...")
     serial_sendPacket(board, PACKET_START, bytearray([0x01]), 1)
-    print("packet sent")
-    board.close()
+    print("star packet sent")
 
+    # send header 
+    file_size = metadata["size"]
+    file_sizeArr = file_size.to_bytes(4, byteorder='big')
+
+    file_crc32 = metadata["crc32"]
+    file_CrcArr = file_crc32.to_bytes(4, byteorder='big')
+
+    file_version = metadata["version"]
+    file_versionArr = file_version.to_bytes(4, byteorder='big')
+
+    header = file_sizeArr + file_CrcArr + file_versionArr
+    serial_sendPacket(board,PACKET_HEADER,header, len(header))
+
+    #send firmware
+
+    board.close()

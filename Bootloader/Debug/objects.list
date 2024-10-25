@@ -1,4 +1,5 @@
 "./Core/Src/boot.o"
+"./Core/Src/extflash.o"
 "./Core/Src/main.o"
 "./Core/Src/spiflash.o"
 "./Core/Src/stm32f4xx_hal_msp.o"

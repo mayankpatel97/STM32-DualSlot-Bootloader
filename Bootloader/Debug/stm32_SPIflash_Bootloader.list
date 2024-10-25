@@ -21,31 +21,31 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, ALLOC, LOAD, DATA
   8 .data         000002c4  20000000  0800ddb0  00020000  2**2
                   CONTENTS, ALLOC, LOAD, DATA
-  9 .bss          00002144  200002c4  0800e074  000202c4  2**2
+  9 .bss          00002128  200002c4  0800e074  000202c4  2**2
                   ALLOC
- 10 ._user_heap_stack 00000600  20002408  0800e074  00022408  2**0
+ 10 ._user_heap_stack 00000604  200023ec  0800e074  000223ec  2**0
                   ALLOC
  11 .ARM.attributes 00000030  00000000  00000000  000202c4  2**0
                   CONTENTS, READONLY
  12 .comment      00000043  00000000  00000000  000202f4  2**0
                   CONTENTS, READONLY
- 13 .debug_info   00010f53  00000000  00000000  00020337  2**0
+ 13 .debug_info   00010e6e  00000000  00000000  00020337  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_abbrev 000034c5  00000000  00000000  0003128a  2**0
+ 14 .debug_abbrev 000034c0  00000000  00000000  000311a5  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_aranges 00000ec8  00000000  00000000  00034750  2**3
+ 15 .debug_aranges 00000ec8  00000000  00000000  00034668  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_rnglists 00000af5  00000000  00000000  00035618  2**0
+ 16 .debug_rnglists 00000af5  00000000  00000000  00035530  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_macro  00019936  00000000  00000000  0003610d  2**0
+ 17 .debug_macro  0001993e  00000000  00000000  00036025  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_line   00013726  00000000  00000000  0004fa43  2**0
+ 18 .debug_line   00013717  00000000  00000000  0004f963  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .debug_str    0008b8d5  00000000  00000000  00063169  2**0
+ 19 .debug_str    0008b8cb  00000000  00000000  0006307a  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 20 .debug_frame  00005148  00000000  00000000  000eea40  2**2
+ 20 .debug_frame  00005148  00000000  00000000  000ee948  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 21 .debug_line_str 0000005b  00000000  00000000  000f3b88  2**0
+ 21 .debug_line_str 00000063  00000000  00000000  000f3a90  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -1872,7 +1872,7 @@ void process_packet(void)
 		case DFU_ERASE_MEM:
 			/* erase flash sectors */
 			spiflash_ChipErase();
- 800138a:	f000 fb45 	bl	8001a18 <spiflash_ChipErase>
+ 800138a:	f000 f9d5 	bl	8001738 <spiflash_ChipErase>
 			send_response_packet(DFU_ERASE_MEM,DFU_OK);
  800138e:	2100      	movs	r1, #0
  8001390:	2002      	movs	r0, #2
@@ -2043,7 +2043,7 @@ void writeDataChunk(uint8_t *dat, uint16_t length)
  80014ac:	887a      	ldrh	r2, [r7, #2]
  80014ae:	4619      	mov	r1, r3
  80014b0:	6878      	ldr	r0, [r7, #4]
- 80014b2:	f000 fb4b 	bl	8001b4c <spiflash_WriteBuffer>
+ 80014b2:	f000 f9db 	bl	800186c <spiflash_WriteBuffer>
 	fw_index += length;
  80014b6:	887a      	ldrh	r2, [r7, #2]
  80014b8:	4b04      	ldr	r3, [pc, #16]	; (80014cc <writeDataChunk+0x30>)
@@ -2073,1287 +2073,1289 @@ void UpdateFirmware(void)
  80014dc:	4770      	bx	lr
 	...
 
-080014e0 <__io_putchar>:
-#endif /* __GNUC__ */
-#define DBG_BUFF_LEN 64
-char dbg_buff[DBG_BUFF_LEN];
-uint8_t dbg_buff_idx;
-PUTCHAR_PROTOTYPE
-{
- 80014e0:	b480      	push	{r7}
- 80014e2:	b083      	sub	sp, #12
- 80014e4:	af00      	add	r7, sp, #0
- 80014e6:	6078      	str	r0, [r7, #4]
-	if(dbg_buff_idx<DBG_BUFF_LEN)
- 80014e8:	4b0f      	ldr	r3, [pc, #60]	; (8001528 <__io_putchar+0x48>)
- 80014ea:	781b      	ldrb	r3, [r3, #0]
- 80014ec:	2b3f      	cmp	r3, #63	; 0x3f
- 80014ee:	d80a      	bhi.n	8001506 <__io_putchar+0x26>
-	{
-		dbg_buff[dbg_buff_idx++] = ch;
- 80014f0:	4b0d      	ldr	r3, [pc, #52]	; (8001528 <__io_putchar+0x48>)
- 80014f2:	781b      	ldrb	r3, [r3, #0]
- 80014f4:	1c5a      	adds	r2, r3, #1
- 80014f6:	b2d1      	uxtb	r1, r2
- 80014f8:	4a0b      	ldr	r2, [pc, #44]	; (8001528 <__io_putchar+0x48>)
- 80014fa:	7011      	strb	r1, [r2, #0]
- 80014fc:	461a      	mov	r2, r3
- 80014fe:	687b      	ldr	r3, [r7, #4]
- 8001500:	b2d9      	uxtb	r1, r3
- 8001502:	4b0a      	ldr	r3, [pc, #40]	; (800152c <__io_putchar+0x4c>)
- 8001504:	5499      	strb	r1, [r3, r2]
-	}
+080014e0 <spiflash_transfer>:
+//};
 
-	if(ch == '\n' || ch == '\r')
- 8001506:	687b      	ldr	r3, [r7, #4]
- 8001508:	2b0a      	cmp	r3, #10
- 800150a:	d002      	beq.n	8001512 <__io_putchar+0x32>
- 800150c:	687b      	ldr	r3, [r7, #4]
- 800150e:	2b0d      	cmp	r3, #13
- 8001510:	d102      	bne.n	8001518 <__io_putchar+0x38>
-	{
-	  //CDC_Transmit_FS((uint8_t *)&dbg_buff[0], dbg_buff_idx);
-	  dbg_buff_idx=0;
- 8001512:	4b05      	ldr	r3, [pc, #20]	; (8001528 <__io_putchar+0x48>)
- 8001514:	2200      	movs	r2, #0
- 8001516:	701a      	strb	r2, [r3, #0]
-	}
-	return ch;
- 8001518:	687b      	ldr	r3, [r7, #4]
-}
- 800151a:	4618      	mov	r0, r3
- 800151c:	370c      	adds	r7, #12
- 800151e:	46bd      	mov	sp, r7
- 8001520:	f85d 7b04 	ldr.w	r7, [sp], #4
- 8001524:	4770      	bx	lr
- 8001526:	bf00      	nop
- 8001528:	20000598 	.word	0x20000598
- 800152c:	20000558 	.word	0x20000558
-
-08001530 <main>:
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
-int main(void)
-{
- 8001530:	b580      	push	{r7, lr}
- 8001532:	af00      	add	r7, sp, #0
-  /* USER CODE END 1 */
-
-  /* MCU Configuration--------------------------------------------------------*/
-
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
- 8001534:	f000 fd6e 	bl	8002014 <HAL_Init>
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
-
-  /* Configure the system clock */
-  SystemClock_Config();
- 8001538:	f000 f81c 	bl	8001574 <SystemClock_Config>
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
-
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
- 800153c:	f000 f8b8 	bl	80016b0 <MX_GPIO_Init>
-  MX_SPI1_Init();
- 8001540:	f000 f880 	bl	8001644 <MX_SPI1_Init>
-  MX_USB_DEVICE_Init();
- 8001544:	f007 f80c 	bl	8008560 <MX_USB_DEVICE_Init>
-  /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-	  //printf("I am Mayank Patel. How are you?\n");
-
-	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
- 8001548:	2200      	movs	r2, #0
- 800154a:	f44f 5100 	mov.w	r1, #8192	; 0x2000
- 800154e:	4808      	ldr	r0, [pc, #32]	; (8001570 <main+0x40>)
- 8001550:	f001 f88c 	bl	800266c <HAL_GPIO_WritePin>
-	  HAL_Delay(35);
- 8001554:	2023      	movs	r0, #35	; 0x23
- 8001556:	f000 fdcf 	bl	80020f8 <HAL_Delay>
-	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
- 800155a:	2201      	movs	r2, #1
- 800155c:	f44f 5100 	mov.w	r1, #8192	; 0x2000
- 8001560:	4803      	ldr	r0, [pc, #12]	; (8001570 <main+0x40>)
- 8001562:	f001 f883 	bl	800266c <HAL_GPIO_WritePin>
-	  HAL_Delay(2000);
- 8001566:	f44f 60fa 	mov.w	r0, #2000	; 0x7d0
- 800156a:	f000 fdc5 	bl	80020f8 <HAL_Delay>
-	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
- 800156e:	e7eb      	b.n	8001548 <main+0x18>
- 8001570:	40020800 	.word	0x40020800
-
-08001574 <SystemClock_Config>:
-/**
-  * @brief System Clock Configuration
-  * @retval None
-  */
-void SystemClock_Config(void)
-{
- 8001574:	b580      	push	{r7, lr}
- 8001576:	b094      	sub	sp, #80	; 0x50
- 8001578:	af00      	add	r7, sp, #0
-  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
- 800157a:	f107 0320 	add.w	r3, r7, #32
- 800157e:	2230      	movs	r2, #48	; 0x30
- 8001580:	2100      	movs	r1, #0
- 8001582:	4618      	mov	r0, r3
- 8001584:	f008 fd94 	bl	800a0b0 <memset>
-  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
- 8001588:	f107 030c 	add.w	r3, r7, #12
- 800158c:	2200      	movs	r2, #0
- 800158e:	601a      	str	r2, [r3, #0]
- 8001590:	605a      	str	r2, [r3, #4]
- 8001592:	609a      	str	r2, [r3, #8]
- 8001594:	60da      	str	r2, [r3, #12]
- 8001596:	611a      	str	r2, [r3, #16]
-
-  /** Configure the main internal regulator output voltage
-  */
-  __HAL_RCC_PWR_CLK_ENABLE();
- 8001598:	2300      	movs	r3, #0
- 800159a:	60bb      	str	r3, [r7, #8]
- 800159c:	4b27      	ldr	r3, [pc, #156]	; (800163c <SystemClock_Config+0xc8>)
- 800159e:	6c1b      	ldr	r3, [r3, #64]	; 0x40
- 80015a0:	4a26      	ldr	r2, [pc, #152]	; (800163c <SystemClock_Config+0xc8>)
- 80015a2:	f043 5380 	orr.w	r3, r3, #268435456	; 0x10000000
- 80015a6:	6413      	str	r3, [r2, #64]	; 0x40
- 80015a8:	4b24      	ldr	r3, [pc, #144]	; (800163c <SystemClock_Config+0xc8>)
- 80015aa:	6c1b      	ldr	r3, [r3, #64]	; 0x40
- 80015ac:	f003 5380 	and.w	r3, r3, #268435456	; 0x10000000
- 80015b0:	60bb      	str	r3, [r7, #8]
- 80015b2:	68bb      	ldr	r3, [r7, #8]
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
- 80015b4:	2300      	movs	r3, #0
- 80015b6:	607b      	str	r3, [r7, #4]
- 80015b8:	4b21      	ldr	r3, [pc, #132]	; (8001640 <SystemClock_Config+0xcc>)
- 80015ba:	681b      	ldr	r3, [r3, #0]
- 80015bc:	4a20      	ldr	r2, [pc, #128]	; (8001640 <SystemClock_Config+0xcc>)
- 80015be:	f443 4340 	orr.w	r3, r3, #49152	; 0xc000
- 80015c2:	6013      	str	r3, [r2, #0]
- 80015c4:	4b1e      	ldr	r3, [pc, #120]	; (8001640 <SystemClock_Config+0xcc>)
- 80015c6:	681b      	ldr	r3, [r3, #0]
- 80015c8:	f403 4340 	and.w	r3, r3, #49152	; 0xc000
- 80015cc:	607b      	str	r3, [r7, #4]
- 80015ce:	687b      	ldr	r3, [r7, #4]
-
-  /** Initializes the RCC Oscillators according to the specified parameters
-  * in the RCC_OscInitTypeDef structure.
-  */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
- 80015d0:	2301      	movs	r3, #1
- 80015d2:	623b      	str	r3, [r7, #32]
-  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
- 80015d4:	f44f 3380 	mov.w	r3, #65536	; 0x10000
- 80015d8:	627b      	str	r3, [r7, #36]	; 0x24
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
- 80015da:	2302      	movs	r3, #2
- 80015dc:	63bb      	str	r3, [r7, #56]	; 0x38
-  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
- 80015de:	f44f 0380 	mov.w	r3, #4194304	; 0x400000
- 80015e2:	63fb      	str	r3, [r7, #60]	; 0x3c
-  RCC_OscInitStruct.PLL.PLLM = 25;
- 80015e4:	2319      	movs	r3, #25
- 80015e6:	643b      	str	r3, [r7, #64]	; 0x40
-  RCC_OscInitStruct.PLL.PLLN = 192;
- 80015e8:	23c0      	movs	r3, #192	; 0xc0
- 80015ea:	647b      	str	r3, [r7, #68]	; 0x44
-  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV6;
- 80015ec:	2306      	movs	r3, #6
- 80015ee:	64bb      	str	r3, [r7, #72]	; 0x48
-  RCC_OscInitStruct.PLL.PLLQ = 4;
- 80015f0:	2304      	movs	r3, #4
- 80015f2:	64fb      	str	r3, [r7, #76]	; 0x4c
-  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
- 80015f4:	f107 0320 	add.w	r3, r7, #32
- 80015f8:	4618      	mov	r0, r3
- 80015fa:	f002 faa1 	bl	8003b40 <HAL_RCC_OscConfig>
- 80015fe:	4603      	mov	r3, r0
- 8001600:	2b00      	cmp	r3, #0
- 8001602:	d001      	beq.n	8001608 <SystemClock_Config+0x94>
-  {
-    Error_Handler();
- 8001604:	f000 f8d6 	bl	80017b4 <Error_Handler>
-  }
-
-  /** Initializes the CPU, AHB and APB buses clocks
-  */
-  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
- 8001608:	230f      	movs	r3, #15
- 800160a:	60fb      	str	r3, [r7, #12]
-                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
- 800160c:	2302      	movs	r3, #2
- 800160e:	613b      	str	r3, [r7, #16]
-  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
- 8001610:	2300      	movs	r3, #0
- 8001612:	617b      	str	r3, [r7, #20]
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
- 8001614:	2300      	movs	r3, #0
- 8001616:	61bb      	str	r3, [r7, #24]
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
- 8001618:	2300      	movs	r3, #0
- 800161a:	61fb      	str	r3, [r7, #28]
-
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
- 800161c:	f107 030c 	add.w	r3, r7, #12
- 8001620:	2101      	movs	r1, #1
- 8001622:	4618      	mov	r0, r3
- 8001624:	f002 fd04 	bl	8004030 <HAL_RCC_ClockConfig>
- 8001628:	4603      	mov	r3, r0
- 800162a:	2b00      	cmp	r3, #0
- 800162c:	d001      	beq.n	8001632 <SystemClock_Config+0xbe>
-  {
-    Error_Handler();
- 800162e:	f000 f8c1 	bl	80017b4 <Error_Handler>
-  }
-}
- 8001632:	bf00      	nop
- 8001634:	3750      	adds	r7, #80	; 0x50
- 8001636:	46bd      	mov	sp, r7
- 8001638:	bd80      	pop	{r7, pc}
- 800163a:	bf00      	nop
- 800163c:	40023800 	.word	0x40023800
- 8001640:	40007000 	.word	0x40007000
-
-08001644 <MX_SPI1_Init>:
-  * @brief SPI1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_SPI1_Init(void)
-{
- 8001644:	b580      	push	{r7, lr}
- 8001646:	af00      	add	r7, sp, #0
-
-  /* USER CODE BEGIN SPI1_Init 1 */
-
-  /* USER CODE END SPI1_Init 1 */
-  /* SPI1 parameter configuration*/
-  hspi1.Instance = SPI1;
- 8001648:	4b17      	ldr	r3, [pc, #92]	; (80016a8 <MX_SPI1_Init+0x64>)
- 800164a:	4a18      	ldr	r2, [pc, #96]	; (80016ac <MX_SPI1_Init+0x68>)
- 800164c:	601a      	str	r2, [r3, #0]
-  hspi1.Init.Mode = SPI_MODE_MASTER;
- 800164e:	4b16      	ldr	r3, [pc, #88]	; (80016a8 <MX_SPI1_Init+0x64>)
- 8001650:	f44f 7282 	mov.w	r2, #260	; 0x104
- 8001654:	605a      	str	r2, [r3, #4]
-  hspi1.Init.Direction = SPI_DIRECTION_2LINES;
- 8001656:	4b14      	ldr	r3, [pc, #80]	; (80016a8 <MX_SPI1_Init+0x64>)
- 8001658:	2200      	movs	r2, #0
- 800165a:	609a      	str	r2, [r3, #8]
-  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
- 800165c:	4b12      	ldr	r3, [pc, #72]	; (80016a8 <MX_SPI1_Init+0x64>)
- 800165e:	2200      	movs	r2, #0
- 8001660:	60da      	str	r2, [r3, #12]
-  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
- 8001662:	4b11      	ldr	r3, [pc, #68]	; (80016a8 <MX_SPI1_Init+0x64>)
- 8001664:	2200      	movs	r2, #0
- 8001666:	611a      	str	r2, [r3, #16]
-  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
- 8001668:	4b0f      	ldr	r3, [pc, #60]	; (80016a8 <MX_SPI1_Init+0x64>)
- 800166a:	2200      	movs	r2, #0
- 800166c:	615a      	str	r2, [r3, #20]
-  hspi1.Init.NSS = SPI_NSS_SOFT;
- 800166e:	4b0e      	ldr	r3, [pc, #56]	; (80016a8 <MX_SPI1_Init+0x64>)
- 8001670:	f44f 7200 	mov.w	r2, #512	; 0x200
- 8001674:	619a      	str	r2, [r3, #24]
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
- 8001676:	4b0c      	ldr	r3, [pc, #48]	; (80016a8 <MX_SPI1_Init+0x64>)
- 8001678:	2200      	movs	r2, #0
- 800167a:	61da      	str	r2, [r3, #28]
-  hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
- 800167c:	4b0a      	ldr	r3, [pc, #40]	; (80016a8 <MX_SPI1_Init+0x64>)
- 800167e:	2200      	movs	r2, #0
- 8001680:	621a      	str	r2, [r3, #32]
-  hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
- 8001682:	4b09      	ldr	r3, [pc, #36]	; (80016a8 <MX_SPI1_Init+0x64>)
- 8001684:	2200      	movs	r2, #0
- 8001686:	625a      	str	r2, [r3, #36]	; 0x24
-  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
- 8001688:	4b07      	ldr	r3, [pc, #28]	; (80016a8 <MX_SPI1_Init+0x64>)
- 800168a:	2200      	movs	r2, #0
- 800168c:	629a      	str	r2, [r3, #40]	; 0x28
-  hspi1.Init.CRCPolynomial = 10;
- 800168e:	4b06      	ldr	r3, [pc, #24]	; (80016a8 <MX_SPI1_Init+0x64>)
- 8001690:	220a      	movs	r2, #10
- 8001692:	62da      	str	r2, [r3, #44]	; 0x2c
-  if (HAL_SPI_Init(&hspi1) != HAL_OK)
- 8001694:	4804      	ldr	r0, [pc, #16]	; (80016a8 <MX_SPI1_Init+0x64>)
- 8001696:	f002 fe83 	bl	80043a0 <HAL_SPI_Init>
- 800169a:	4603      	mov	r3, r0
- 800169c:	2b00      	cmp	r3, #0
- 800169e:	d001      	beq.n	80016a4 <MX_SPI1_Init+0x60>
-  {
-    Error_Handler();
- 80016a0:	f000 f888 	bl	80017b4 <Error_Handler>
-  }
-  /* USER CODE BEGIN SPI1_Init 2 */
-
-  /* USER CODE END SPI1_Init 2 */
-
-}
- 80016a4:	bf00      	nop
- 80016a6:	bd80      	pop	{r7, pc}
- 80016a8:	20000500 	.word	0x20000500
- 80016ac:	40013000 	.word	0x40013000
-
-080016b0 <MX_GPIO_Init>:
-  * @brief GPIO Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_GPIO_Init(void)
-{
- 80016b0:	b580      	push	{r7, lr}
- 80016b2:	b08a      	sub	sp, #40	; 0x28
- 80016b4:	af00      	add	r7, sp, #0
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
- 80016b6:	f107 0314 	add.w	r3, r7, #20
- 80016ba:	2200      	movs	r2, #0
- 80016bc:	601a      	str	r2, [r3, #0]
- 80016be:	605a      	str	r2, [r3, #4]
- 80016c0:	609a      	str	r2, [r3, #8]
- 80016c2:	60da      	str	r2, [r3, #12]
- 80016c4:	611a      	str	r2, [r3, #16]
-/* USER CODE BEGIN MX_GPIO_Init_1 */
-/* USER CODE END MX_GPIO_Init_1 */
-
-  /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOC_CLK_ENABLE();
- 80016c6:	2300      	movs	r3, #0
- 80016c8:	613b      	str	r3, [r7, #16]
- 80016ca:	4b37      	ldr	r3, [pc, #220]	; (80017a8 <MX_GPIO_Init+0xf8>)
- 80016cc:	6b1b      	ldr	r3, [r3, #48]	; 0x30
- 80016ce:	4a36      	ldr	r2, [pc, #216]	; (80017a8 <MX_GPIO_Init+0xf8>)
- 80016d0:	f043 0304 	orr.w	r3, r3, #4
- 80016d4:	6313      	str	r3, [r2, #48]	; 0x30
- 80016d6:	4b34      	ldr	r3, [pc, #208]	; (80017a8 <MX_GPIO_Init+0xf8>)
- 80016d8:	6b1b      	ldr	r3, [r3, #48]	; 0x30
- 80016da:	f003 0304 	and.w	r3, r3, #4
- 80016de:	613b      	str	r3, [r7, #16]
- 80016e0:	693b      	ldr	r3, [r7, #16]
-  __HAL_RCC_GPIOH_CLK_ENABLE();
- 80016e2:	2300      	movs	r3, #0
- 80016e4:	60fb      	str	r3, [r7, #12]
- 80016e6:	4b30      	ldr	r3, [pc, #192]	; (80017a8 <MX_GPIO_Init+0xf8>)
- 80016e8:	6b1b      	ldr	r3, [r3, #48]	; 0x30
- 80016ea:	4a2f      	ldr	r2, [pc, #188]	; (80017a8 <MX_GPIO_Init+0xf8>)
- 80016ec:	f043 0380 	orr.w	r3, r3, #128	; 0x80
- 80016f0:	6313      	str	r3, [r2, #48]	; 0x30
- 80016f2:	4b2d      	ldr	r3, [pc, #180]	; (80017a8 <MX_GPIO_Init+0xf8>)
- 80016f4:	6b1b      	ldr	r3, [r3, #48]	; 0x30
- 80016f6:	f003 0380 	and.w	r3, r3, #128	; 0x80
- 80016fa:	60fb      	str	r3, [r7, #12]
- 80016fc:	68fb      	ldr	r3, [r7, #12]
-  __HAL_RCC_GPIOA_CLK_ENABLE();
- 80016fe:	2300      	movs	r3, #0
- 8001700:	60bb      	str	r3, [r7, #8]
- 8001702:	4b29      	ldr	r3, [pc, #164]	; (80017a8 <MX_GPIO_Init+0xf8>)
- 8001704:	6b1b      	ldr	r3, [r3, #48]	; 0x30
- 8001706:	4a28      	ldr	r2, [pc, #160]	; (80017a8 <MX_GPIO_Init+0xf8>)
- 8001708:	f043 0301 	orr.w	r3, r3, #1
- 800170c:	6313      	str	r3, [r2, #48]	; 0x30
- 800170e:	4b26      	ldr	r3, [pc, #152]	; (80017a8 <MX_GPIO_Init+0xf8>)
- 8001710:	6b1b      	ldr	r3, [r3, #48]	; 0x30
- 8001712:	f003 0301 	and.w	r3, r3, #1
- 8001716:	60bb      	str	r3, [r7, #8]
- 8001718:	68bb      	ldr	r3, [r7, #8]
-  __HAL_RCC_GPIOB_CLK_ENABLE();
- 800171a:	2300      	movs	r3, #0
- 800171c:	607b      	str	r3, [r7, #4]
- 800171e:	4b22      	ldr	r3, [pc, #136]	; (80017a8 <MX_GPIO_Init+0xf8>)
- 8001720:	6b1b      	ldr	r3, [r3, #48]	; 0x30
- 8001722:	4a21      	ldr	r2, [pc, #132]	; (80017a8 <MX_GPIO_Init+0xf8>)
- 8001724:	f043 0302 	orr.w	r3, r3, #2
- 8001728:	6313      	str	r3, [r2, #48]	; 0x30
- 800172a:	4b1f      	ldr	r3, [pc, #124]	; (80017a8 <MX_GPIO_Init+0xf8>)
- 800172c:	6b1b      	ldr	r3, [r3, #48]	; 0x30
- 800172e:	f003 0302 	and.w	r3, r3, #2
- 8001732:	607b      	str	r3, [r7, #4]
- 8001734:	687b      	ldr	r3, [r7, #4]
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
- 8001736:	2200      	movs	r2, #0
- 8001738:	f44f 5100 	mov.w	r1, #8192	; 0x2000
- 800173c:	481b      	ldr	r0, [pc, #108]	; (80017ac <MX_GPIO_Init+0xfc>)
- 800173e:	f000 ff95 	bl	800266c <HAL_GPIO_WritePin>
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
- 8001742:	2200      	movs	r2, #0
- 8001744:	2110      	movs	r1, #16
- 8001746:	481a      	ldr	r0, [pc, #104]	; (80017b0 <MX_GPIO_Init+0x100>)
- 8001748:	f000 ff90 	bl	800266c <HAL_GPIO_WritePin>
-
-  /*Configure GPIO pin : LED_Pin */
-  GPIO_InitStruct.Pin = LED_Pin;
- 800174c:	f44f 5300 	mov.w	r3, #8192	; 0x2000
- 8001750:	617b      	str	r3, [r7, #20]
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
- 8001752:	2301      	movs	r3, #1
- 8001754:	61bb      	str	r3, [r7, #24]
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
- 8001756:	2300      	movs	r3, #0
- 8001758:	61fb      	str	r3, [r7, #28]
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
- 800175a:	2300      	movs	r3, #0
- 800175c:	623b      	str	r3, [r7, #32]
-  HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
- 800175e:	f107 0314 	add.w	r3, r7, #20
- 8001762:	4619      	mov	r1, r3
- 8001764:	4811      	ldr	r0, [pc, #68]	; (80017ac <MX_GPIO_Init+0xfc>)
- 8001766:	f000 fdfd 	bl	8002364 <HAL_GPIO_Init>
-
-  /*Configure GPIO pin : BUTTON_Pin */
-  GPIO_InitStruct.Pin = BUTTON_Pin;
- 800176a:	2301      	movs	r3, #1
- 800176c:	617b      	str	r3, [r7, #20]
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
- 800176e:	2300      	movs	r3, #0
- 8001770:	61bb      	str	r3, [r7, #24]
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
- 8001772:	2301      	movs	r3, #1
- 8001774:	61fb      	str	r3, [r7, #28]
-  HAL_GPIO_Init(BUTTON_GPIO_Port, &GPIO_InitStruct);
- 8001776:	f107 0314 	add.w	r3, r7, #20
- 800177a:	4619      	mov	r1, r3
- 800177c:	480c      	ldr	r0, [pc, #48]	; (80017b0 <MX_GPIO_Init+0x100>)
- 800177e:	f000 fdf1 	bl	8002364 <HAL_GPIO_Init>
-
-  /*Configure GPIO pin : FLASH_CS_Pin */
-  GPIO_InitStruct.Pin = FLASH_CS_Pin;
- 8001782:	2310      	movs	r3, #16
- 8001784:	617b      	str	r3, [r7, #20]
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
- 8001786:	2301      	movs	r3, #1
- 8001788:	61bb      	str	r3, [r7, #24]
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
- 800178a:	2300      	movs	r3, #0
- 800178c:	61fb      	str	r3, [r7, #28]
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
- 800178e:	2300      	movs	r3, #0
- 8001790:	623b      	str	r3, [r7, #32]
-  HAL_GPIO_Init(FLASH_CS_GPIO_Port, &GPIO_InitStruct);
- 8001792:	f107 0314 	add.w	r3, r7, #20
- 8001796:	4619      	mov	r1, r3
- 8001798:	4805      	ldr	r0, [pc, #20]	; (80017b0 <MX_GPIO_Init+0x100>)
- 800179a:	f000 fde3 	bl	8002364 <HAL_GPIO_Init>
-
-/* USER CODE BEGIN MX_GPIO_Init_2 */
-/* USER CODE END MX_GPIO_Init_2 */
-}
- 800179e:	bf00      	nop
- 80017a0:	3728      	adds	r7, #40	; 0x28
- 80017a2:	46bd      	mov	sp, r7
- 80017a4:	bd80      	pop	{r7, pc}
- 80017a6:	bf00      	nop
- 80017a8:	40023800 	.word	0x40023800
- 80017ac:	40020800 	.word	0x40020800
- 80017b0:	40020000 	.word	0x40020000
-
-080017b4 <Error_Handler>:
-/**
-  * @brief  This function is executed in case of error occurrence.
-  * @retval None
-  */
-void Error_Handler(void)
-{
- 80017b4:	b480      	push	{r7}
- 80017b6:	af00      	add	r7, sp, #0
-  \details Disables IRQ interrupts by setting special-purpose register PRIMASK.
-           Can only be executed in Privileged modes.
- */
-__STATIC_FORCEINLINE void __disable_irq(void)
-{
-  __ASM volatile ("cpsid i" : : : "memory");
- 80017b8:	b672      	cpsid	i
-}
- 80017ba:	bf00      	nop
-  /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
- 80017bc:	e7fe      	b.n	80017bc <Error_Handler+0x8>
-	...
-
-080017c0 <spiflash_transfer>:
-//}
-
-
+#define LOG(...) printf(__VA_ARGS__)
 
 static uint8_t spiflash_transfer(uint8_t tx)
 {
- 80017c0:	b580      	push	{r7, lr}
- 80017c2:	b084      	sub	sp, #16
- 80017c4:	af02      	add	r7, sp, #8
- 80017c6:	4603      	mov	r3, r0
- 80017c8:	71fb      	strb	r3, [r7, #7]
-	pTxData[0] = tx;
- 80017ca:	4a09      	ldr	r2, [pc, #36]	; (80017f0 <spiflash_transfer+0x30>)
- 80017cc:	79fb      	ldrb	r3, [r7, #7]
- 80017ce:	7013      	strb	r3, [r2, #0]
-	HAL_SPI_TransmitReceive(&hspi1, pTxData, pRxData, 1, 500);
- 80017d0:	f44f 73fa 	mov.w	r3, #500	; 0x1f4
- 80017d4:	9300      	str	r3, [sp, #0]
- 80017d6:	2301      	movs	r3, #1
- 80017d8:	4a06      	ldr	r2, [pc, #24]	; (80017f4 <spiflash_transfer+0x34>)
- 80017da:	4905      	ldr	r1, [pc, #20]	; (80017f0 <spiflash_transfer+0x30>)
- 80017dc:	4806      	ldr	r0, [pc, #24]	; (80017f8 <spiflash_transfer+0x38>)
- 80017de:	f003 f8c3 	bl	8004968 <HAL_SPI_TransmitReceive>
+ 80014e0:	b580      	push	{r7, lr}
+ 80014e2:	b086      	sub	sp, #24
+ 80014e4:	af02      	add	r7, sp, #8
+ 80014e6:	4603      	mov	r3, r0
+ 80014e8:	71fb      	strb	r3, [r7, #7]
+	uint8_t txdat [] = {tx,0x00};
+ 80014ea:	79fb      	ldrb	r3, [r7, #7]
+ 80014ec:	733b      	strb	r3, [r7, #12]
+ 80014ee:	2300      	movs	r3, #0
+ 80014f0:	737b      	strb	r3, [r7, #13]
+	HAL_SPI_TransmitReceive(&hspi1, &txdat[0], pRxData, 1, 500);
+ 80014f2:	f107 010c 	add.w	r1, r7, #12
+ 80014f6:	f44f 73fa 	mov.w	r3, #500	; 0x1f4
+ 80014fa:	9300      	str	r3, [sp, #0]
+ 80014fc:	2301      	movs	r3, #1
+ 80014fe:	4a05      	ldr	r2, [pc, #20]	; (8001514 <spiflash_transfer+0x34>)
+ 8001500:	4805      	ldr	r0, [pc, #20]	; (8001518 <spiflash_transfer+0x38>)
+ 8001502:	f003 fa31 	bl	8004968 <HAL_SPI_TransmitReceive>
 	return pRxData[0];
- 80017e2:	4b04      	ldr	r3, [pc, #16]	; (80017f4 <spiflash_transfer+0x34>)
- 80017e4:	781b      	ldrb	r3, [r3, #0]
+ 8001506:	4b03      	ldr	r3, [pc, #12]	; (8001514 <spiflash_transfer+0x34>)
+ 8001508:	781b      	ldrb	r3, [r3, #0]
 }
- 80017e6:	4618      	mov	r0, r3
- 80017e8:	3708      	adds	r7, #8
- 80017ea:	46bd      	mov	sp, r7
- 80017ec:	bd80      	pop	{r7, pc}
- 80017ee:	bf00      	nop
- 80017f0:	200005b0 	.word	0x200005b0
- 80017f4:	200005d0 	.word	0x200005d0
- 80017f8:	20000500 	.word	0x20000500
+ 800150a:	4618      	mov	r0, r3
+ 800150c:	3710      	adds	r7, #16
+ 800150e:	46bd      	mov	sp, r7
+ 8001510:	bd80      	pop	{r7, pc}
+ 8001512:	bf00      	nop
+ 8001514:	20000518 	.word	0x20000518
+ 8001518:	20000618 	.word	0x20000618
 
-080017fc <spiflash_writeEnable>:
+0800151c <spiflash_writeEnable>:
+
+#define FLASH_CS(x) HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, x ? GPIO_PIN_SET: GPIO_PIN_RESET);
 
 void spiflash_writeEnable(void)
 {
- 80017fc:	b580      	push	{r7, lr}
- 80017fe:	af00      	add	r7, sp, #0
-    HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
- 8001800:	2200      	movs	r2, #0
- 8001802:	2110      	movs	r1, #16
- 8001804:	4806      	ldr	r0, [pc, #24]	; (8001820 <spiflash_writeEnable+0x24>)
- 8001806:	f000 ff31 	bl	800266c <HAL_GPIO_WritePin>
+ 800151c:	b580      	push	{r7, lr}
+ 800151e:	af00      	add	r7, sp, #0
+    FLASH_CS(0);
+ 8001520:	2200      	movs	r2, #0
+ 8001522:	2110      	movs	r1, #16
+ 8001524:	4806      	ldr	r0, [pc, #24]	; (8001540 <spiflash_writeEnable+0x24>)
+ 8001526:	f001 f8a1 	bl	800266c <HAL_GPIO_WritePin>
     spiflash_transfer(0x06);
- 800180a:	2006      	movs	r0, #6
- 800180c:	f7ff ffd8 	bl	80017c0 <spiflash_transfer>
-    HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_SET);
- 8001810:	2201      	movs	r2, #1
- 8001812:	2110      	movs	r1, #16
- 8001814:	4802      	ldr	r0, [pc, #8]	; (8001820 <spiflash_writeEnable+0x24>)
- 8001816:	f000 ff29 	bl	800266c <HAL_GPIO_WritePin>
+ 800152a:	2006      	movs	r0, #6
+ 800152c:	f7ff ffd8 	bl	80014e0 <spiflash_transfer>
+    FLASH_CS(1);
+ 8001530:	2201      	movs	r2, #1
+ 8001532:	2110      	movs	r1, #16
+ 8001534:	4802      	ldr	r0, [pc, #8]	; (8001540 <spiflash_writeEnable+0x24>)
+ 8001536:	f001 f899 	bl	800266c <HAL_GPIO_WritePin>
 }
- 800181a:	bf00      	nop
- 800181c:	bd80      	pop	{r7, pc}
- 800181e:	bf00      	nop
- 8001820:	40020000 	.word	0x40020000
+ 800153a:	bf00      	nop
+ 800153c:	bd80      	pop	{r7, pc}
+ 800153e:	bf00      	nop
+ 8001540:	40020000 	.word	0x40020000
 
-08001824 <ReadFlashStatus>:
-    printf("dev_type: "); println_hex(dev_type);
-    printf("  dev_id: "); println_hex(dev_id);
-    HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_SET);
+08001544 <ReadFlashStatus>:
+    printf("dev_type: ");// println_hex(dev_type);
+    printf("  dev_id: ");// println_hex(dev_id);
+    FLASH_CS(1);
 }
 
 uint8_t ReadFlashStatus(void) {
- 8001824:	b580      	push	{r7, lr}
- 8001826:	b082      	sub	sp, #8
- 8001828:	af00      	add	r7, sp, #0
+ 8001544:	b580      	push	{r7, lr}
+ 8001546:	b082      	sub	sp, #8
+ 8001548:	af00      	add	r7, sp, #0
     unsigned int flashStatus = 0x00;
- 800182a:	2300      	movs	r3, #0
- 800182c:	607b      	str	r3, [r7, #4]
-    HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
- 800182e:	2200      	movs	r2, #0
- 8001830:	2110      	movs	r1, #16
- 8001832:	480b      	ldr	r0, [pc, #44]	; (8001860 <ReadFlashStatus+0x3c>)
- 8001834:	f000 ff1a 	bl	800266c <HAL_GPIO_WritePin>
+ 800154a:	2300      	movs	r3, #0
+ 800154c:	607b      	str	r3, [r7, #4]
+    FLASH_CS(0);
+ 800154e:	2200      	movs	r2, #0
+ 8001550:	2110      	movs	r1, #16
+ 8001552:	480b      	ldr	r0, [pc, #44]	; (8001580 <ReadFlashStatus+0x3c>)
+ 8001554:	f001 f88a 	bl	800266c <HAL_GPIO_WritePin>
     spiflash_transfer(0x05);
- 8001838:	2005      	movs	r0, #5
- 800183a:	f7ff ffc1 	bl	80017c0 <spiflash_transfer>
+ 8001558:	2005      	movs	r0, #5
+ 800155a:	f7ff ffc1 	bl	80014e0 <spiflash_transfer>
     flashStatus = spiflash_transfer(0x00);
- 800183e:	2000      	movs	r0, #0
- 8001840:	f7ff ffbe 	bl	80017c0 <spiflash_transfer>
- 8001844:	4603      	mov	r3, r0
- 8001846:	607b      	str	r3, [r7, #4]
-    HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_SET);
- 8001848:	2201      	movs	r2, #1
- 800184a:	2110      	movs	r1, #16
- 800184c:	4804      	ldr	r0, [pc, #16]	; (8001860 <ReadFlashStatus+0x3c>)
- 800184e:	f000 ff0d 	bl	800266c <HAL_GPIO_WritePin>
+ 800155e:	2000      	movs	r0, #0
+ 8001560:	f7ff ffbe 	bl	80014e0 <spiflash_transfer>
+ 8001564:	4603      	mov	r3, r0
+ 8001566:	607b      	str	r3, [r7, #4]
+    FLASH_CS(1);
+ 8001568:	2201      	movs	r2, #1
+ 800156a:	2110      	movs	r1, #16
+ 800156c:	4804      	ldr	r0, [pc, #16]	; (8001580 <ReadFlashStatus+0x3c>)
+ 800156e:	f001 f87d 	bl	800266c <HAL_GPIO_WritePin>
     return flashStatus;
- 8001852:	687b      	ldr	r3, [r7, #4]
- 8001854:	b2db      	uxtb	r3, r3
+ 8001572:	687b      	ldr	r3, [r7, #4]
+ 8001574:	b2db      	uxtb	r3, r3
 }
- 8001856:	4618      	mov	r0, r3
- 8001858:	3708      	adds	r7, #8
- 800185a:	46bd      	mov	sp, r7
- 800185c:	bd80      	pop	{r7, pc}
- 800185e:	bf00      	nop
- 8001860:	40020000 	.word	0x40020000
+ 8001576:	4618      	mov	r0, r3
+ 8001578:	3708      	adds	r7, #8
+ 800157a:	46bd      	mov	sp, r7
+ 800157c:	bd80      	pop	{r7, pc}
+ 800157e:	bf00      	nop
+ 8001580:	40020000 	.word	0x40020000
 
-08001864 <ClearBlockProtectSST1>:
+08001584 <ClearBlockProtectSST1>:
 
 void ClearBlockProtectSST1(void) {
- 8001864:	b580      	push	{r7, lr}
- 8001866:	b082      	sub	sp, #8
- 8001868:	af00      	add	r7, sp, #0
+ 8001584:	b580      	push	{r7, lr}
+ 8001586:	b082      	sub	sp, #8
+ 8001588:	af00      	add	r7, sp, #0
     uint8_t flashStatus1 = 0x00;
- 800186a:	2300      	movs	r3, #0
- 800186c:	71fb      	strb	r3, [r7, #7]
-    HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
- 800186e:	2200      	movs	r2, #0
- 8001870:	2110      	movs	r1, #16
- 8001872:	481b      	ldr	r0, [pc, #108]	; (80018e0 <ClearBlockProtectSST1+0x7c>)
- 8001874:	f000 fefa 	bl	800266c <HAL_GPIO_WritePin>
+ 800158a:	2300      	movs	r3, #0
+ 800158c:	71fb      	strb	r3, [r7, #7]
+    FLASH_CS(0);
+ 800158e:	2200      	movs	r2, #0
+ 8001590:	2110      	movs	r1, #16
+ 8001592:	481b      	ldr	r0, [pc, #108]	; (8001600 <ClearBlockProtectSST1+0x7c>)
+ 8001594:	f001 f86a 	bl	800266c <HAL_GPIO_WritePin>
     spiflash_transfer(0x05);
- 8001878:	2005      	movs	r0, #5
- 800187a:	f7ff ffa1 	bl	80017c0 <spiflash_transfer>
+ 8001598:	2005      	movs	r0, #5
+ 800159a:	f7ff ffa1 	bl	80014e0 <spiflash_transfer>
     flashStatus1 = spiflash_transfer(0x00);
- 800187e:	2000      	movs	r0, #0
- 8001880:	f7ff ff9e 	bl	80017c0 <spiflash_transfer>
- 8001884:	4603      	mov	r3, r0
- 8001886:	71fb      	strb	r3, [r7, #7]
-    HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_SET);
- 8001888:	2201      	movs	r2, #1
- 800188a:	2110      	movs	r1, #16
- 800188c:	4814      	ldr	r0, [pc, #80]	; (80018e0 <ClearBlockProtectSST1+0x7c>)
- 800188e:	f000 feed 	bl	800266c <HAL_GPIO_WritePin>
+ 800159e:	2000      	movs	r0, #0
+ 80015a0:	f7ff ff9e 	bl	80014e0 <spiflash_transfer>
+ 80015a4:	4603      	mov	r3, r0
+ 80015a6:	71fb      	strb	r3, [r7, #7]
+    FLASH_CS(1);
+ 80015a8:	2201      	movs	r2, #1
+ 80015aa:	2110      	movs	r1, #16
+ 80015ac:	4814      	ldr	r0, [pc, #80]	; (8001600 <ClearBlockProtectSST1+0x7c>)
+ 80015ae:	f001 f85d 	bl	800266c <HAL_GPIO_WritePin>
 
     //modify flashstatus to clear protect bits
     flashStatus1 &= 0xC3;
- 8001892:	79fb      	ldrb	r3, [r7, #7]
- 8001894:	f023 033c 	bic.w	r3, r3, #60	; 0x3c
- 8001898:	71fb      	strb	r3, [r7, #7]
-    HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
- 800189a:	2200      	movs	r2, #0
- 800189c:	2110      	movs	r1, #16
- 800189e:	4810      	ldr	r0, [pc, #64]	; (80018e0 <ClearBlockProtectSST1+0x7c>)
- 80018a0:	f000 fee4 	bl	800266c <HAL_GPIO_WritePin>
+ 80015b2:	79fb      	ldrb	r3, [r7, #7]
+ 80015b4:	f023 033c 	bic.w	r3, r3, #60	; 0x3c
+ 80015b8:	71fb      	strb	r3, [r7, #7]
+    FLASH_CS(0);
+ 80015ba:	2200      	movs	r2, #0
+ 80015bc:	2110      	movs	r1, #16
+ 80015be:	4810      	ldr	r0, [pc, #64]	; (8001600 <ClearBlockProtectSST1+0x7c>)
+ 80015c0:	f001 f854 	bl	800266c <HAL_GPIO_WritePin>
     spiflash_transfer(0x50);
- 80018a4:	2050      	movs	r0, #80	; 0x50
- 80018a6:	f7ff ff8b 	bl	80017c0 <spiflash_transfer>
-    HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_SET);
- 80018aa:	2201      	movs	r2, #1
- 80018ac:	2110      	movs	r1, #16
- 80018ae:	480c      	ldr	r0, [pc, #48]	; (80018e0 <ClearBlockProtectSST1+0x7c>)
- 80018b0:	f000 fedc 	bl	800266c <HAL_GPIO_WritePin>
-    HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
- 80018b4:	2200      	movs	r2, #0
- 80018b6:	2110      	movs	r1, #16
- 80018b8:	4809      	ldr	r0, [pc, #36]	; (80018e0 <ClearBlockProtectSST1+0x7c>)
- 80018ba:	f000 fed7 	bl	800266c <HAL_GPIO_WritePin>
+ 80015c4:	2050      	movs	r0, #80	; 0x50
+ 80015c6:	f7ff ff8b 	bl	80014e0 <spiflash_transfer>
+    FLASH_CS(1);
+ 80015ca:	2201      	movs	r2, #1
+ 80015cc:	2110      	movs	r1, #16
+ 80015ce:	480c      	ldr	r0, [pc, #48]	; (8001600 <ClearBlockProtectSST1+0x7c>)
+ 80015d0:	f001 f84c 	bl	800266c <HAL_GPIO_WritePin>
+    FLASH_CS(0);
+ 80015d4:	2200      	movs	r2, #0
+ 80015d6:	2110      	movs	r1, #16
+ 80015d8:	4809      	ldr	r0, [pc, #36]	; (8001600 <ClearBlockProtectSST1+0x7c>)
+ 80015da:	f001 f847 	bl	800266c <HAL_GPIO_WritePin>
     spiflash_transfer(0x01);
- 80018be:	2001      	movs	r0, #1
- 80018c0:	f7ff ff7e 	bl	80017c0 <spiflash_transfer>
+ 80015de:	2001      	movs	r0, #1
+ 80015e0:	f7ff ff7e 	bl	80014e0 <spiflash_transfer>
     spiflash_transfer(flashStatus1);
- 80018c4:	79fb      	ldrb	r3, [r7, #7]
- 80018c6:	4618      	mov	r0, r3
- 80018c8:	f7ff ff7a 	bl	80017c0 <spiflash_transfer>
-    HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
- 80018cc:	2200      	movs	r2, #0
- 80018ce:	2110      	movs	r1, #16
- 80018d0:	4803      	ldr	r0, [pc, #12]	; (80018e0 <ClearBlockProtectSST1+0x7c>)
- 80018d2:	f000 fecb 	bl	800266c <HAL_GPIO_WritePin>
+ 80015e4:	79fb      	ldrb	r3, [r7, #7]
+ 80015e6:	4618      	mov	r0, r3
+ 80015e8:	f7ff ff7a 	bl	80014e0 <spiflash_transfer>
+    FLASH_CS(0);
+ 80015ec:	2200      	movs	r2, #0
+ 80015ee:	2110      	movs	r1, #16
+ 80015f0:	4803      	ldr	r0, [pc, #12]	; (8001600 <ClearBlockProtectSST1+0x7c>)
+ 80015f2:	f001 f83b 	bl	800266c <HAL_GPIO_WritePin>
 }
- 80018d6:	bf00      	nop
- 80018d8:	3708      	adds	r7, #8
- 80018da:	46bd      	mov	sp, r7
- 80018dc:	bd80      	pop	{r7, pc}
- 80018de:	bf00      	nop
- 80018e0:	40020000 	.word	0x40020000
+ 80015f6:	bf00      	nop
+ 80015f8:	3708      	adds	r7, #8
+ 80015fa:	46bd      	mov	sp, r7
+ 80015fc:	bd80      	pop	{r7, pc}
+ 80015fe:	bf00      	nop
+ 8001600:	40020000 	.word	0x40020000
 
-080018e4 <ClearBlockProtect>:
+08001604 <ClearBlockProtect>:
 
 void ClearBlockProtect(void) {
- 80018e4:	b580      	push	{r7, lr}
- 80018e6:	b082      	sub	sp, #8
- 80018e8:	af00      	add	r7, sp, #0
+ 8001604:	b580      	push	{r7, lr}
+ 8001606:	b082      	sub	sp, #8
+ 8001608:	af00      	add	r7, sp, #0
     unsigned char i = 0;
- 80018ea:	2300      	movs	r3, #0
- 80018ec:	71fb      	strb	r3, [r7, #7]
+ 800160a:	2300      	movs	r3, #0
+ 800160c:	71fb      	strb	r3, [r7, #7]
     if (dev_type == 0x25) {
- 80018ee:	4b44      	ldr	r3, [pc, #272]	; (8001a00 <ClearBlockProtect+0x11c>)
- 80018f0:	781b      	ldrb	r3, [r3, #0]
- 80018f2:	2b25      	cmp	r3, #37	; 0x25
- 80018f4:	d102      	bne.n	80018fc <ClearBlockProtect+0x18>
+ 800160e:	4b44      	ldr	r3, [pc, #272]	; (8001720 <ClearBlockProtect+0x11c>)
+ 8001610:	781b      	ldrb	r3, [r3, #0]
+ 8001612:	2b25      	cmp	r3, #37	; 0x25
+ 8001614:	d102      	bne.n	800161c <ClearBlockProtect+0x18>
         ClearBlockProtectSST1();
- 80018f6:	f7ff ffb5 	bl	8001864 <ClearBlockProtectSST1>
+ 8001616:	f7ff ffb5 	bl	8001584 <ClearBlockProtectSST1>
         return;
- 80018fa:	e07d      	b.n	80019f8 <ClearBlockProtect+0x114>
+ 800161a:	e07d      	b.n	8001718 <ClearBlockProtect+0x114>
     }
     block_protection_10[0] = 0x00;
- 80018fc:	4b41      	ldr	r3, [pc, #260]	; (8001a04 <ClearBlockProtect+0x120>)
- 80018fe:	2200      	movs	r2, #0
- 8001900:	701a      	strb	r2, [r3, #0]
+ 800161c:	4b41      	ldr	r3, [pc, #260]	; (8001724 <ClearBlockProtect+0x120>)
+ 800161e:	2200      	movs	r2, #0
+ 8001620:	701a      	strb	r2, [r3, #0]
     block_protection_10[1] = 0x00;
- 8001902:	4b40      	ldr	r3, [pc, #256]	; (8001a04 <ClearBlockProtect+0x120>)
- 8001904:	2200      	movs	r2, #0
- 8001906:	705a      	strb	r2, [r3, #1]
+ 8001622:	4b40      	ldr	r3, [pc, #256]	; (8001724 <ClearBlockProtect+0x120>)
+ 8001624:	2200      	movs	r2, #0
+ 8001626:	705a      	strb	r2, [r3, #1]
     block_protection_10[2] = 0x00;
- 8001908:	4b3e      	ldr	r3, [pc, #248]	; (8001a04 <ClearBlockProtect+0x120>)
- 800190a:	2200      	movs	r2, #0
- 800190c:	709a      	strb	r2, [r3, #2]
+ 8001628:	4b3e      	ldr	r3, [pc, #248]	; (8001724 <ClearBlockProtect+0x120>)
+ 800162a:	2200      	movs	r2, #0
+ 800162c:	709a      	strb	r2, [r3, #2]
     block_protection_10[3] = 0x00;
- 800190e:	4b3d      	ldr	r3, [pc, #244]	; (8001a04 <ClearBlockProtect+0x120>)
- 8001910:	2200      	movs	r2, #0
- 8001912:	70da      	strb	r2, [r3, #3]
+ 800162e:	4b3d      	ldr	r3, [pc, #244]	; (8001724 <ClearBlockProtect+0x120>)
+ 8001630:	2200      	movs	r2, #0
+ 8001632:	70da      	strb	r2, [r3, #3]
     block_protection_10[4] = 0x00;
- 8001914:	4b3b      	ldr	r3, [pc, #236]	; (8001a04 <ClearBlockProtect+0x120>)
- 8001916:	2200      	movs	r2, #0
- 8001918:	711a      	strb	r2, [r3, #4]
+ 8001634:	4b3b      	ldr	r3, [pc, #236]	; (8001724 <ClearBlockProtect+0x120>)
+ 8001636:	2200      	movs	r2, #0
+ 8001638:	711a      	strb	r2, [r3, #4]
     block_protection_10[5] = 0x00;
- 800191a:	4b3a      	ldr	r3, [pc, #232]	; (8001a04 <ClearBlockProtect+0x120>)
- 800191c:	2200      	movs	r2, #0
- 800191e:	715a      	strb	r2, [r3, #5]
+ 800163a:	4b3a      	ldr	r3, [pc, #232]	; (8001724 <ClearBlockProtect+0x120>)
+ 800163c:	2200      	movs	r2, #0
+ 800163e:	715a      	strb	r2, [r3, #5]
     block_protection_10[6] = 0x00;
- 8001920:	4b38      	ldr	r3, [pc, #224]	; (8001a04 <ClearBlockProtect+0x120>)
- 8001922:	2200      	movs	r2, #0
- 8001924:	719a      	strb	r2, [r3, #6]
+ 8001640:	4b38      	ldr	r3, [pc, #224]	; (8001724 <ClearBlockProtect+0x120>)
+ 8001642:	2200      	movs	r2, #0
+ 8001644:	719a      	strb	r2, [r3, #6]
     block_protection_10[7] = 0x00;
- 8001926:	4b37      	ldr	r3, [pc, #220]	; (8001a04 <ClearBlockProtect+0x120>)
- 8001928:	2200      	movs	r2, #0
- 800192a:	71da      	strb	r2, [r3, #7]
+ 8001646:	4b37      	ldr	r3, [pc, #220]	; (8001724 <ClearBlockProtect+0x120>)
+ 8001648:	2200      	movs	r2, #0
+ 800164a:	71da      	strb	r2, [r3, #7]
     block_protection_10[8] = 0x00;
- 800192c:	4b35      	ldr	r3, [pc, #212]	; (8001a04 <ClearBlockProtect+0x120>)
- 800192e:	2200      	movs	r2, #0
- 8001930:	721a      	strb	r2, [r3, #8]
+ 800164c:	4b35      	ldr	r3, [pc, #212]	; (8001724 <ClearBlockProtect+0x120>)
+ 800164e:	2200      	movs	r2, #0
+ 8001650:	721a      	strb	r2, [r3, #8]
     block_protection_10[9] = 0x00;
- 8001932:	4b34      	ldr	r3, [pc, #208]	; (8001a04 <ClearBlockProtect+0x120>)
- 8001934:	2200      	movs	r2, #0
- 8001936:	725a      	strb	r2, [r3, #9]
+ 8001652:	4b34      	ldr	r3, [pc, #208]	; (8001724 <ClearBlockProtect+0x120>)
+ 8001654:	2200      	movs	r2, #0
+ 8001656:	725a      	strb	r2, [r3, #9]
     block_protection_10[10] = 0x00;
- 8001938:	4b32      	ldr	r3, [pc, #200]	; (8001a04 <ClearBlockProtect+0x120>)
- 800193a:	2200      	movs	r2, #0
- 800193c:	729a      	strb	r2, [r3, #10]
+ 8001658:	4b32      	ldr	r3, [pc, #200]	; (8001724 <ClearBlockProtect+0x120>)
+ 800165a:	2200      	movs	r2, #0
+ 800165c:	729a      	strb	r2, [r3, #10]
     block_protection_10[11] = 0x00;
- 800193e:	4b31      	ldr	r3, [pc, #196]	; (8001a04 <ClearBlockProtect+0x120>)
- 8001940:	2200      	movs	r2, #0
- 8001942:	72da      	strb	r2, [r3, #11]
+ 800165e:	4b31      	ldr	r3, [pc, #196]	; (8001724 <ClearBlockProtect+0x120>)
+ 8001660:	2200      	movs	r2, #0
+ 8001662:	72da      	strb	r2, [r3, #11]
     block_protection_10[12] = 0x00;
- 8001944:	4b2f      	ldr	r3, [pc, #188]	; (8001a04 <ClearBlockProtect+0x120>)
- 8001946:	2200      	movs	r2, #0
- 8001948:	731a      	strb	r2, [r3, #12]
+ 8001664:	4b2f      	ldr	r3, [pc, #188]	; (8001724 <ClearBlockProtect+0x120>)
+ 8001666:	2200      	movs	r2, #0
+ 8001668:	731a      	strb	r2, [r3, #12]
     block_protection_10[13] = 0x00;
- 800194a:	4b2e      	ldr	r3, [pc, #184]	; (8001a04 <ClearBlockProtect+0x120>)
- 800194c:	2200      	movs	r2, #0
- 800194e:	735a      	strb	r2, [r3, #13]
+ 800166a:	4b2e      	ldr	r3, [pc, #184]	; (8001724 <ClearBlockProtect+0x120>)
+ 800166c:	2200      	movs	r2, #0
+ 800166e:	735a      	strb	r2, [r3, #13]
     block_protection_10[14] = 0x00;
- 8001950:	4b2c      	ldr	r3, [pc, #176]	; (8001a04 <ClearBlockProtect+0x120>)
- 8001952:	2200      	movs	r2, #0
- 8001954:	739a      	strb	r2, [r3, #14]
+ 8001670:	4b2c      	ldr	r3, [pc, #176]	; (8001724 <ClearBlockProtect+0x120>)
+ 8001672:	2200      	movs	r2, #0
+ 8001674:	739a      	strb	r2, [r3, #14]
     block_protection_10[15] = 0x00;
- 8001956:	4b2b      	ldr	r3, [pc, #172]	; (8001a04 <ClearBlockProtect+0x120>)
- 8001958:	2200      	movs	r2, #0
- 800195a:	73da      	strb	r2, [r3, #15]
+ 8001676:	4b2b      	ldr	r3, [pc, #172]	; (8001724 <ClearBlockProtect+0x120>)
+ 8001678:	2200      	movs	r2, #0
+ 800167a:	73da      	strb	r2, [r3, #15]
     block_protection_10[16] = 0x00;
- 800195c:	4b29      	ldr	r3, [pc, #164]	; (8001a04 <ClearBlockProtect+0x120>)
- 800195e:	2200      	movs	r2, #0
- 8001960:	741a      	strb	r2, [r3, #16]
+ 800167c:	4b29      	ldr	r3, [pc, #164]	; (8001724 <ClearBlockProtect+0x120>)
+ 800167e:	2200      	movs	r2, #0
+ 8001680:	741a      	strb	r2, [r3, #16]
     block_protection_10[17] = 0x00;
- 8001962:	4b28      	ldr	r3, [pc, #160]	; (8001a04 <ClearBlockProtect+0x120>)
- 8001964:	2200      	movs	r2, #0
- 8001966:	745a      	strb	r2, [r3, #17]
+ 8001682:	4b28      	ldr	r3, [pc, #160]	; (8001724 <ClearBlockProtect+0x120>)
+ 8001684:	2200      	movs	r2, #0
+ 8001686:	745a      	strb	r2, [r3, #17]
     spiflash_writeEnable();
- 8001968:	f7ff ff48 	bl	80017fc <spiflash_writeEnable>
-    HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
- 800196c:	2200      	movs	r2, #0
- 800196e:	2110      	movs	r1, #16
- 8001970:	4825      	ldr	r0, [pc, #148]	; (8001a08 <ClearBlockProtect+0x124>)
- 8001972:	f000 fe7b 	bl	800266c <HAL_GPIO_WritePin>
+ 8001688:	f7ff ff48 	bl	800151c <spiflash_writeEnable>
+    FLASH_CS(0);
+ 800168c:	2200      	movs	r2, #0
+ 800168e:	2110      	movs	r1, #16
+ 8001690:	4825      	ldr	r0, [pc, #148]	; (8001728 <ClearBlockProtect+0x124>)
+ 8001692:	f000 ffeb 	bl	800266c <HAL_GPIO_WritePin>
     spiflash_transfer(0x42);
- 8001976:	2042      	movs	r0, #66	; 0x42
- 8001978:	f7ff ff22 	bl	80017c0 <spiflash_transfer>
+ 8001696:	2042      	movs	r0, #66	; 0x42
+ 8001698:	f7ff ff22 	bl	80014e0 <spiflash_transfer>
     for (i = 18; i > 0; i--) {spiflash_transfer(block_protection_10[i - 1]);}
- 800197c:	2312      	movs	r3, #18
- 800197e:	71fb      	strb	r3, [r7, #7]
- 8001980:	e009      	b.n	8001996 <ClearBlockProtect+0xb2>
- 8001982:	79fb      	ldrb	r3, [r7, #7]
- 8001984:	3b01      	subs	r3, #1
- 8001986:	4a1f      	ldr	r2, [pc, #124]	; (8001a04 <ClearBlockProtect+0x120>)
- 8001988:	5cd3      	ldrb	r3, [r2, r3]
- 800198a:	4618      	mov	r0, r3
- 800198c:	f7ff ff18 	bl	80017c0 <spiflash_transfer>
- 8001990:	79fb      	ldrb	r3, [r7, #7]
- 8001992:	3b01      	subs	r3, #1
- 8001994:	71fb      	strb	r3, [r7, #7]
- 8001996:	79fb      	ldrb	r3, [r7, #7]
- 8001998:	2b00      	cmp	r3, #0
- 800199a:	d1f2      	bne.n	8001982 <ClearBlockProtect+0x9e>
-    HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_SET);
- 800199c:	2201      	movs	r2, #1
- 800199e:	2110      	movs	r1, #16
- 80019a0:	4819      	ldr	r0, [pc, #100]	; (8001a08 <ClearBlockProtect+0x124>)
- 80019a2:	f000 fe63 	bl	800266c <HAL_GPIO_WritePin>
+ 800169c:	2312      	movs	r3, #18
+ 800169e:	71fb      	strb	r3, [r7, #7]
+ 80016a0:	e009      	b.n	80016b6 <ClearBlockProtect+0xb2>
+ 80016a2:	79fb      	ldrb	r3, [r7, #7]
+ 80016a4:	3b01      	subs	r3, #1
+ 80016a6:	4a1f      	ldr	r2, [pc, #124]	; (8001724 <ClearBlockProtect+0x120>)
+ 80016a8:	5cd3      	ldrb	r3, [r2, r3]
+ 80016aa:	4618      	mov	r0, r3
+ 80016ac:	f7ff ff18 	bl	80014e0 <spiflash_transfer>
+ 80016b0:	79fb      	ldrb	r3, [r7, #7]
+ 80016b2:	3b01      	subs	r3, #1
+ 80016b4:	71fb      	strb	r3, [r7, #7]
+ 80016b6:	79fb      	ldrb	r3, [r7, #7]
+ 80016b8:	2b00      	cmp	r3, #0
+ 80016ba:	d1f2      	bne.n	80016a2 <ClearBlockProtect+0x9e>
+    FLASH_CS(1);
+ 80016bc:	2201      	movs	r2, #1
+ 80016be:	2110      	movs	r1, #16
+ 80016c0:	4819      	ldr	r0, [pc, #100]	; (8001728 <ClearBlockProtect+0x124>)
+ 80016c2:	f000 ffd3 	bl	800266c <HAL_GPIO_WritePin>
 
     //Florian's way for WINBOND
     if ((mfg_id == 0xEF) && (dev_type == 0x40) && (dev_id == 0x17)) {
- 80019a6:	4b19      	ldr	r3, [pc, #100]	; (8001a0c <ClearBlockProtect+0x128>)
- 80019a8:	781b      	ldrb	r3, [r3, #0]
- 80019aa:	2bef      	cmp	r3, #239	; 0xef
- 80019ac:	d124      	bne.n	80019f8 <ClearBlockProtect+0x114>
- 80019ae:	4b14      	ldr	r3, [pc, #80]	; (8001a00 <ClearBlockProtect+0x11c>)
- 80019b0:	781b      	ldrb	r3, [r3, #0]
- 80019b2:	2b40      	cmp	r3, #64	; 0x40
- 80019b4:	d120      	bne.n	80019f8 <ClearBlockProtect+0x114>
- 80019b6:	4b16      	ldr	r3, [pc, #88]	; (8001a10 <ClearBlockProtect+0x12c>)
- 80019b8:	781b      	ldrb	r3, [r3, #0]
- 80019ba:	2b17      	cmp	r3, #23
- 80019bc:	d11c      	bne.n	80019f8 <ClearBlockProtect+0x114>
+ 80016c6:	4b19      	ldr	r3, [pc, #100]	; (800172c <ClearBlockProtect+0x128>)
+ 80016c8:	781b      	ldrb	r3, [r3, #0]
+ 80016ca:	2bef      	cmp	r3, #239	; 0xef
+ 80016cc:	d124      	bne.n	8001718 <ClearBlockProtect+0x114>
+ 80016ce:	4b14      	ldr	r3, [pc, #80]	; (8001720 <ClearBlockProtect+0x11c>)
+ 80016d0:	781b      	ldrb	r3, [r3, #0]
+ 80016d2:	2b40      	cmp	r3, #64	; 0x40
+ 80016d4:	d120      	bne.n	8001718 <ClearBlockProtect+0x114>
+ 80016d6:	4b16      	ldr	r3, [pc, #88]	; (8001730 <ClearBlockProtect+0x12c>)
+ 80016d8:	781b      	ldrb	r3, [r3, #0]
+ 80016da:	2b17      	cmp	r3, #23
+ 80016dc:	d11c      	bne.n	8001718 <ClearBlockProtect+0x114>
         spiflash_writeEnable();
- 80019be:	f7ff ff1d 	bl	80017fc <spiflash_writeEnable>
-        HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
- 80019c2:	2200      	movs	r2, #0
- 80019c4:	2110      	movs	r1, #16
- 80019c6:	4810      	ldr	r0, [pc, #64]	; (8001a08 <ClearBlockProtect+0x124>)
- 80019c8:	f000 fe50 	bl	800266c <HAL_GPIO_WritePin>
+ 80016de:	f7ff ff1d 	bl	800151c <spiflash_writeEnable>
+        FLASH_CS(0);
+ 80016e2:	2200      	movs	r2, #0
+ 80016e4:	2110      	movs	r1, #16
+ 80016e6:	4810      	ldr	r0, [pc, #64]	; (8001728 <ClearBlockProtect+0x124>)
+ 80016e8:	f000 ffc0 	bl	800266c <HAL_GPIO_WritePin>
         spiflash_transfer(0x01);
- 80019cc:	2001      	movs	r0, #1
- 80019ce:	f7ff fef7 	bl	80017c0 <spiflash_transfer>
+ 80016ec:	2001      	movs	r0, #1
+ 80016ee:	f7ff fef7 	bl	80014e0 <spiflash_transfer>
         spiflash_transfer(0x00);
- 80019d2:	2000      	movs	r0, #0
- 80019d4:	f7ff fef4 	bl	80017c0 <spiflash_transfer>
-        HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_SET);
- 80019d8:	2201      	movs	r2, #1
- 80019da:	2110      	movs	r1, #16
- 80019dc:	480a      	ldr	r0, [pc, #40]	; (8001a08 <ClearBlockProtect+0x124>)
- 80019de:	f000 fe45 	bl	800266c <HAL_GPIO_WritePin>
+ 80016f2:	2000      	movs	r0, #0
+ 80016f4:	f7ff fef4 	bl	80014e0 <spiflash_transfer>
+        FLASH_CS(1);
+ 80016f8:	2201      	movs	r2, #1
+ 80016fa:	2110      	movs	r1, #16
+ 80016fc:	480a      	ldr	r0, [pc, #40]	; (8001728 <ClearBlockProtect+0x124>)
+ 80016fe:	f000 ffb5 	bl	800266c <HAL_GPIO_WritePin>
         while (ReadFlashStatus() & busyMask);
- 80019e2:	bf00      	nop
- 80019e4:	f7ff ff1e 	bl	8001824 <ReadFlashStatus>
- 80019e8:	4603      	mov	r3, r0
- 80019ea:	461a      	mov	r2, r3
- 80019ec:	4b09      	ldr	r3, [pc, #36]	; (8001a14 <ClearBlockProtect+0x130>)
- 80019ee:	781b      	ldrb	r3, [r3, #0]
- 80019f0:	4013      	ands	r3, r2
- 80019f2:	b2db      	uxtb	r3, r3
- 80019f4:	2b00      	cmp	r3, #0
- 80019f6:	d1f5      	bne.n	80019e4 <ClearBlockProtect+0x100>
+ 8001702:	bf00      	nop
+ 8001704:	f7ff ff1e 	bl	8001544 <ReadFlashStatus>
+ 8001708:	4603      	mov	r3, r0
+ 800170a:	461a      	mov	r2, r3
+ 800170c:	4b09      	ldr	r3, [pc, #36]	; (8001734 <ClearBlockProtect+0x130>)
+ 800170e:	781b      	ldrb	r3, [r3, #0]
+ 8001710:	4013      	ands	r3, r2
+ 8001712:	b2db      	uxtb	r3, r3
+ 8001714:	2b00      	cmp	r3, #0
+ 8001716:	d1f5      	bne.n	8001704 <ClearBlockProtect+0x100>
     }
 }
- 80019f8:	3708      	adds	r7, #8
- 80019fa:	46bd      	mov	sp, r7
- 80019fc:	bd80      	pop	{r7, pc}
- 80019fe:	bf00      	nop
- 8001a00:	2000059a 	.word	0x2000059a
- 8001a04:	2000059c 	.word	0x2000059c
- 8001a08:	40020000 	.word	0x40020000
- 8001a0c:	20000599 	.word	0x20000599
- 8001a10:	2000059b 	.word	0x2000059b
- 8001a14:	200005ae 	.word	0x200005ae
+ 8001718:	3708      	adds	r7, #8
+ 800171a:	46bd      	mov	sp, r7
+ 800171c:	bd80      	pop	{r7, pc}
+ 800171e:	bf00      	nop
+ 8001720:	20000501 	.word	0x20000501
+ 8001724:	20000504 	.word	0x20000504
+ 8001728:	40020000 	.word	0x40020000
+ 800172c:	20000500 	.word	0x20000500
+ 8001730:	20000502 	.word	0x20000502
+ 8001734:	20000516 	.word	0x20000516
 
-08001a18 <spiflash_ChipErase>:
+08001738 <spiflash_ChipErase>:
 
 void spiflash_ChipErase(void) {
- 8001a18:	b580      	push	{r7, lr}
- 8001a1a:	af00      	add	r7, sp, #0
+ 8001738:	b580      	push	{r7, lr}
+ 800173a:	af00      	add	r7, sp, #0
     ClearBlockProtect();
- 8001a1c:	f7ff ff62 	bl	80018e4 <ClearBlockProtect>
+ 800173c:	f7ff ff62 	bl	8001604 <ClearBlockProtect>
     spiflash_writeEnable();
- 8001a20:	f7ff feec 	bl	80017fc <spiflash_writeEnable>
-    HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
- 8001a24:	2200      	movs	r2, #0
- 8001a26:	2110      	movs	r1, #16
- 8001a28:	4806      	ldr	r0, [pc, #24]	; (8001a44 <spiflash_ChipErase+0x2c>)
- 8001a2a:	f000 fe1f 	bl	800266c <HAL_GPIO_WritePin>
+ 8001740:	f7ff feec 	bl	800151c <spiflash_writeEnable>
+    FLASH_CS(0);
+ 8001744:	2200      	movs	r2, #0
+ 8001746:	2110      	movs	r1, #16
+ 8001748:	4806      	ldr	r0, [pc, #24]	; (8001764 <spiflash_ChipErase+0x2c>)
+ 800174a:	f000 ff8f 	bl	800266c <HAL_GPIO_WritePin>
     spiflash_transfer(0xC7);
- 8001a2e:	20c7      	movs	r0, #199	; 0xc7
- 8001a30:	f7ff fec6 	bl	80017c0 <spiflash_transfer>
-    HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_SET);
- 8001a34:	2201      	movs	r2, #1
- 8001a36:	2110      	movs	r1, #16
- 8001a38:	4802      	ldr	r0, [pc, #8]	; (8001a44 <spiflash_ChipErase+0x2c>)
- 8001a3a:	f000 fe17 	bl	800266c <HAL_GPIO_WritePin>
+ 800174e:	20c7      	movs	r0, #199	; 0xc7
+ 8001750:	f7ff fec6 	bl	80014e0 <spiflash_transfer>
+    FLASH_CS(1);
+ 8001754:	2201      	movs	r2, #1
+ 8001756:	2110      	movs	r1, #16
+ 8001758:	4802      	ldr	r0, [pc, #8]	; (8001764 <spiflash_ChipErase+0x2c>)
+ 800175a:	f000 ff87 	bl	800266c <HAL_GPIO_WritePin>
 }
- 8001a3e:	bf00      	nop
- 8001a40:	bd80      	pop	{r7, pc}
- 8001a42:	bf00      	nop
- 8001a44:	40020000 	.word	0x40020000
+ 800175e:	bf00      	nop
+ 8001760:	bd80      	pop	{r7, pc}
+ 8001762:	bf00      	nop
+ 8001764:	40020000 	.word	0x40020000
 
-08001a48 <spiflash_WriteEnable>:
+08001768 <spiflash_WriteEnable>:
   * @brief  Enables the write access to the FLASH.
   * @param  None
   * @retval None
   */
 void spiflash_WriteEnable(void)
 {
- 8001a48:	b580      	push	{r7, lr}
- 8001a4a:	b082      	sub	sp, #8
- 8001a4c:	af00      	add	r7, sp, #0
+ 8001768:	b580      	push	{r7, lr}
+ 800176a:	b082      	sub	sp, #8
+ 800176c:	af00      	add	r7, sp, #0
 	uint8_t txData[1];
 
 	txData[0] = FLASH_CMD_WREN;
- 8001a4e:	2306      	movs	r3, #6
- 8001a50:	713b      	strb	r3, [r7, #4]
+ 800176e:	2306      	movs	r3, #6
+ 8001770:	713b      	strb	r3, [r7, #4]
 
 	/* Select the FLASH: Chip Select low */
-	HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
- 8001a52:	2200      	movs	r2, #0
- 8001a54:	2110      	movs	r1, #16
- 8001a56:	4809      	ldr	r0, [pc, #36]	; (8001a7c <spiflash_WriteEnable+0x34>)
- 8001a58:	f000 fe08 	bl	800266c <HAL_GPIO_WritePin>
+	FLASH_CS(0);
+ 8001772:	2200      	movs	r2, #0
+ 8001774:	2110      	movs	r1, #16
+ 8001776:	4809      	ldr	r0, [pc, #36]	; (800179c <spiflash_WriteEnable+0x34>)
+ 8001778:	f000 ff78 	bl	800266c <HAL_GPIO_WritePin>
 
 	/* Send "Write Enable" instruction */
 	HAL_SPI_Transmit(&hspi1, txData, sizeof(txData), HAL_MAX_DELAY);
- 8001a5c:	1d39      	adds	r1, r7, #4
- 8001a5e:	f04f 33ff 	mov.w	r3, #4294967295
- 8001a62:	2201      	movs	r2, #1
- 8001a64:	4806      	ldr	r0, [pc, #24]	; (8001a80 <spiflash_WriteEnable+0x38>)
- 8001a66:	f002 fd24 	bl	80044b2 <HAL_SPI_Transmit>
+ 800177c:	1d39      	adds	r1, r7, #4
+ 800177e:	f04f 33ff 	mov.w	r3, #4294967295
+ 8001782:	2201      	movs	r2, #1
+ 8001784:	4806      	ldr	r0, [pc, #24]	; (80017a0 <spiflash_WriteEnable+0x38>)
+ 8001786:	f002 fe94 	bl	80044b2 <HAL_SPI_Transmit>
 
 	/* Deselect the FLASH: Chip Select high */
-	HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_SET);
- 8001a6a:	2201      	movs	r2, #1
- 8001a6c:	2110      	movs	r1, #16
- 8001a6e:	4803      	ldr	r0, [pc, #12]	; (8001a7c <spiflash_WriteEnable+0x34>)
- 8001a70:	f000 fdfc 	bl	800266c <HAL_GPIO_WritePin>
+	FLASH_CS(1);
+ 800178a:	2201      	movs	r2, #1
+ 800178c:	2110      	movs	r1, #16
+ 800178e:	4803      	ldr	r0, [pc, #12]	; (800179c <spiflash_WriteEnable+0x34>)
+ 8001790:	f000 ff6c 	bl	800266c <HAL_GPIO_WritePin>
 }
- 8001a74:	bf00      	nop
- 8001a76:	3708      	adds	r7, #8
- 8001a78:	46bd      	mov	sp, r7
- 8001a7a:	bd80      	pop	{r7, pc}
- 8001a7c:	40020000 	.word	0x40020000
- 8001a80:	20000500 	.word	0x20000500
+ 8001794:	bf00      	nop
+ 8001796:	3708      	adds	r7, #8
+ 8001798:	46bd      	mov	sp, r7
+ 800179a:	bd80      	pop	{r7, pc}
+ 800179c:	40020000 	.word	0x40020000
+ 80017a0:	20000618 	.word	0x20000618
 
-08001a84 <spiflash_WaitForWriteEnd>:
+080017a4 <spiflash_WaitForWriteEnd>:
   *         status register and loop until write operation has completed.
   * @param  None
   * @retval None
   */
 void spiflash_WaitForWriteEnd(void)
 {
- 8001a84:	b580      	push	{r7, lr}
- 8001a86:	b082      	sub	sp, #8
- 8001a88:	af00      	add	r7, sp, #0
+ 80017a4:	b580      	push	{r7, lr}
+ 80017a6:	b082      	sub	sp, #8
+ 80017a8:	af00      	add	r7, sp, #0
 	uint8_t txData[1];
 	uint8_t rxData[1];
 
 	txData[0] = FLASH_CMD_RDSR;
- 8001a8a:	2305      	movs	r3, #5
- 8001a8c:	713b      	strb	r3, [r7, #4]
+ 80017aa:	2305      	movs	r3, #5
+ 80017ac:	713b      	strb	r3, [r7, #4]
 
 	/* Select the FLASH: Chip Select low */
-	HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
- 8001a8e:	2200      	movs	r2, #0
- 8001a90:	2110      	movs	r1, #16
- 8001a92:	480f      	ldr	r0, [pc, #60]	; (8001ad0 <spiflash_WaitForWriteEnd+0x4c>)
- 8001a94:	f000 fdea 	bl	800266c <HAL_GPIO_WritePin>
+	FLASH_CS(0);
+ 80017ae:	2200      	movs	r2, #0
+ 80017b0:	2110      	movs	r1, #16
+ 80017b2:	480f      	ldr	r0, [pc, #60]	; (80017f0 <spiflash_WaitForWriteEnd+0x4c>)
+ 80017b4:	f000 ff5a 	bl	800266c <HAL_GPIO_WritePin>
 
 	/* Send "Read Status Register" instruction */
 	HAL_SPI_Transmit(&hspi1, txData, sizeof(txData), HAL_MAX_DELAY);
- 8001a98:	1d39      	adds	r1, r7, #4
- 8001a9a:	f04f 33ff 	mov.w	r3, #4294967295
- 8001a9e:	2201      	movs	r2, #1
- 8001aa0:	480c      	ldr	r0, [pc, #48]	; (8001ad4 <spiflash_WaitForWriteEnd+0x50>)
- 8001aa2:	f002 fd06 	bl	80044b2 <HAL_SPI_Transmit>
+ 80017b8:	1d39      	adds	r1, r7, #4
+ 80017ba:	f04f 33ff 	mov.w	r3, #4294967295
+ 80017be:	2201      	movs	r2, #1
+ 80017c0:	480c      	ldr	r0, [pc, #48]	; (80017f4 <spiflash_WaitForWriteEnd+0x50>)
+ 80017c2:	f002 fe76 	bl	80044b2 <HAL_SPI_Transmit>
 
 	/* Loop as long as the memory is busy with a write cycle */
 	do
 	{
 		/* Receive "Read Status Register" value */
 		HAL_SPI_Receive(&hspi1, rxData, sizeof(rxData), HAL_MAX_DELAY);
- 8001aa6:	4639      	mov	r1, r7
- 8001aa8:	f04f 33ff 	mov.w	r3, #4294967295
- 8001aac:	2201      	movs	r2, #1
- 8001aae:	4809      	ldr	r0, [pc, #36]	; (8001ad4 <spiflash_WaitForWriteEnd+0x50>)
- 8001ab0:	f002 fe42 	bl	8004738 <HAL_SPI_Receive>
+ 80017c6:	4639      	mov	r1, r7
+ 80017c8:	f04f 33ff 	mov.w	r3, #4294967295
+ 80017cc:	2201      	movs	r2, #1
+ 80017ce:	4809      	ldr	r0, [pc, #36]	; (80017f4 <spiflash_WaitForWriteEnd+0x50>)
+ 80017d0:	f002 ffb2 	bl	8004738 <HAL_SPI_Receive>
 	}
 	while ((rxData[0] & FLASH_WIP_MASK) == FLASH_WIP_MASK); /* Write in progress */
- 8001ab4:	783b      	ldrb	r3, [r7, #0]
- 8001ab6:	f003 0301 	and.w	r3, r3, #1
- 8001aba:	2b00      	cmp	r3, #0
- 8001abc:	d1f3      	bne.n	8001aa6 <spiflash_WaitForWriteEnd+0x22>
+ 80017d4:	783b      	ldrb	r3, [r7, #0]
+ 80017d6:	f003 0301 	and.w	r3, r3, #1
+ 80017da:	2b00      	cmp	r3, #0
+ 80017dc:	d1f3      	bne.n	80017c6 <spiflash_WaitForWriteEnd+0x22>
 
 	/* Deselect the FLASH: Chip Select high */
-	HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_SET);
- 8001abe:	2201      	movs	r2, #1
- 8001ac0:	2110      	movs	r1, #16
- 8001ac2:	4803      	ldr	r0, [pc, #12]	; (8001ad0 <spiflash_WaitForWriteEnd+0x4c>)
- 8001ac4:	f000 fdd2 	bl	800266c <HAL_GPIO_WritePin>
+	FLASH_CS(1);
+ 80017de:	2201      	movs	r2, #1
+ 80017e0:	2110      	movs	r1, #16
+ 80017e2:	4803      	ldr	r0, [pc, #12]	; (80017f0 <spiflash_WaitForWriteEnd+0x4c>)
+ 80017e4:	f000 ff42 	bl	800266c <HAL_GPIO_WritePin>
 }
- 8001ac8:	bf00      	nop
- 8001aca:	3708      	adds	r7, #8
- 8001acc:	46bd      	mov	sp, r7
- 8001ace:	bd80      	pop	{r7, pc}
- 8001ad0:	40020000 	.word	0x40020000
- 8001ad4:	20000500 	.word	0x20000500
+ 80017e8:	bf00      	nop
+ 80017ea:	3708      	adds	r7, #8
+ 80017ec:	46bd      	mov	sp, r7
+ 80017ee:	bd80      	pop	{r7, pc}
+ 80017f0:	40020000 	.word	0x40020000
+ 80017f4:	20000618 	.word	0x20000618
 
-08001ad8 <spiflash_WritePage>:
+080017f8 <spiflash_WritePage>:
   * @param  NumByteToWrite: number of bytes to write to the FLASH, must be equal
   *         or less than "FLASH_PAGESIZE" value.
   * @retval None
   */
 void spiflash_WritePage(uint8_t* pBuffer, uint32_t WriteAddr, uint32_t NumByteToWrite)
 {
- 8001ad8:	b580      	push	{r7, lr}
- 8001ada:	b086      	sub	sp, #24
- 8001adc:	af00      	add	r7, sp, #0
- 8001ade:	60f8      	str	r0, [r7, #12]
- 8001ae0:	60b9      	str	r1, [r7, #8]
- 8001ae2:	607a      	str	r2, [r7, #4]
+ 80017f8:	b580      	push	{r7, lr}
+ 80017fa:	b086      	sub	sp, #24
+ 80017fc:	af00      	add	r7, sp, #0
+ 80017fe:	60f8      	str	r0, [r7, #12]
+ 8001800:	60b9      	str	r1, [r7, #8]
+ 8001802:	607a      	str	r2, [r7, #4]
 	uint8_t txData[4];
 
 	txData[0] = FLASH_CMD_PP;
- 8001ae4:	2302      	movs	r3, #2
- 8001ae6:	753b      	strb	r3, [r7, #20]
+ 8001804:	2302      	movs	r3, #2
+ 8001806:	753b      	strb	r3, [r7, #20]
 	txData[1] = (WriteAddr & 0xFF0000) >> 16;	/* high nibble address byte to write to */
- 8001ae8:	68bb      	ldr	r3, [r7, #8]
- 8001aea:	0c1b      	lsrs	r3, r3, #16
- 8001aec:	b2db      	uxtb	r3, r3
- 8001aee:	757b      	strb	r3, [r7, #21]
+ 8001808:	68bb      	ldr	r3, [r7, #8]
+ 800180a:	0c1b      	lsrs	r3, r3, #16
+ 800180c:	b2db      	uxtb	r3, r3
+ 800180e:	757b      	strb	r3, [r7, #21]
 	txData[2] = (WriteAddr & 0xFF00) >> 8;		/* medium nibble address byte to write to */
- 8001af0:	68bb      	ldr	r3, [r7, #8]
- 8001af2:	0a1b      	lsrs	r3, r3, #8
- 8001af4:	b2db      	uxtb	r3, r3
- 8001af6:	75bb      	strb	r3, [r7, #22]
+ 8001810:	68bb      	ldr	r3, [r7, #8]
+ 8001812:	0a1b      	lsrs	r3, r3, #8
+ 8001814:	b2db      	uxtb	r3, r3
+ 8001816:	75bb      	strb	r3, [r7, #22]
 	txData[3] = WriteAddr & 0xFF;				/* low nibble address byte to write to */
- 8001af8:	68bb      	ldr	r3, [r7, #8]
- 8001afa:	b2db      	uxtb	r3, r3
- 8001afc:	75fb      	strb	r3, [r7, #23]
+ 8001818:	68bb      	ldr	r3, [r7, #8]
+ 800181a:	b2db      	uxtb	r3, r3
+ 800181c:	75fb      	strb	r3, [r7, #23]
 
 	/* Enable the write access to the FLASH */
 	spiflash_WriteEnable();
- 8001afe:	f7ff ffa3 	bl	8001a48 <spiflash_WriteEnable>
+ 800181e:	f7ff ffa3 	bl	8001768 <spiflash_WriteEnable>
 
 	/* Select the FLASH: Chip Select low */
-	HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
- 8001b02:	2200      	movs	r2, #0
- 8001b04:	2110      	movs	r1, #16
- 8001b06:	480f      	ldr	r0, [pc, #60]	; (8001b44 <spiflash_WritePage+0x6c>)
- 8001b08:	f000 fdb0 	bl	800266c <HAL_GPIO_WritePin>
+	FLASH_CS(0);
+ 8001822:	2200      	movs	r2, #0
+ 8001824:	2110      	movs	r1, #16
+ 8001826:	480f      	ldr	r0, [pc, #60]	; (8001864 <spiflash_WritePage+0x6c>)
+ 8001828:	f000 ff20 	bl	800266c <HAL_GPIO_WritePin>
 
 	/* Send "Write to Memory " instruction */
 	HAL_SPI_Transmit(&hspi1, txData, sizeof(txData), HAL_MAX_DELAY);
- 8001b0c:	f107 0114 	add.w	r1, r7, #20
- 8001b10:	f04f 33ff 	mov.w	r3, #4294967295
- 8001b14:	2204      	movs	r2, #4
- 8001b16:	480c      	ldr	r0, [pc, #48]	; (8001b48 <spiflash_WritePage+0x70>)
- 8001b18:	f002 fccb 	bl	80044b2 <HAL_SPI_Transmit>
+ 800182c:	f107 0114 	add.w	r1, r7, #20
+ 8001830:	f04f 33ff 	mov.w	r3, #4294967295
+ 8001834:	2204      	movs	r2, #4
+ 8001836:	480c      	ldr	r0, [pc, #48]	; (8001868 <spiflash_WritePage+0x70>)
+ 8001838:	f002 fe3b 	bl	80044b2 <HAL_SPI_Transmit>
 
 	/* Send data */
 	HAL_SPI_Transmit(&hspi1, pBuffer, NumByteToWrite, HAL_MAX_DELAY);
- 8001b1c:	687b      	ldr	r3, [r7, #4]
- 8001b1e:	b29a      	uxth	r2, r3
- 8001b20:	f04f 33ff 	mov.w	r3, #4294967295
- 8001b24:	68f9      	ldr	r1, [r7, #12]
- 8001b26:	4808      	ldr	r0, [pc, #32]	; (8001b48 <spiflash_WritePage+0x70>)
- 8001b28:	f002 fcc3 	bl	80044b2 <HAL_SPI_Transmit>
+ 800183c:	687b      	ldr	r3, [r7, #4]
+ 800183e:	b29a      	uxth	r2, r3
+ 8001840:	f04f 33ff 	mov.w	r3, #4294967295
+ 8001844:	68f9      	ldr	r1, [r7, #12]
+ 8001846:	4808      	ldr	r0, [pc, #32]	; (8001868 <spiflash_WritePage+0x70>)
+ 8001848:	f002 fe33 	bl	80044b2 <HAL_SPI_Transmit>
 
 	/* Deselect the FLASH: Chip Select high */
-	HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_SET);
- 8001b2c:	2201      	movs	r2, #1
- 8001b2e:	2110      	movs	r1, #16
- 8001b30:	4804      	ldr	r0, [pc, #16]	; (8001b44 <spiflash_WritePage+0x6c>)
- 8001b32:	f000 fd9b 	bl	800266c <HAL_GPIO_WritePin>
+	FLASH_CS(1);
+ 800184c:	2201      	movs	r2, #1
+ 800184e:	2110      	movs	r1, #16
+ 8001850:	4804      	ldr	r0, [pc, #16]	; (8001864 <spiflash_WritePage+0x6c>)
+ 8001852:	f000 ff0b 	bl	800266c <HAL_GPIO_WritePin>
 
 	/* Wait the end of Flash writing */
 	spiflash_WaitForWriteEnd();
- 8001b36:	f7ff ffa5 	bl	8001a84 <spiflash_WaitForWriteEnd>
+ 8001856:	f7ff ffa5 	bl	80017a4 <spiflash_WaitForWriteEnd>
 }
- 8001b3a:	bf00      	nop
- 8001b3c:	3718      	adds	r7, #24
- 8001b3e:	46bd      	mov	sp, r7
- 8001b40:	bd80      	pop	{r7, pc}
- 8001b42:	bf00      	nop
- 8001b44:	40020000 	.word	0x40020000
- 8001b48:	20000500 	.word	0x20000500
+ 800185a:	bf00      	nop
+ 800185c:	3718      	adds	r7, #24
+ 800185e:	46bd      	mov	sp, r7
+ 8001860:	bd80      	pop	{r7, pc}
+ 8001862:	bf00      	nop
+ 8001864:	40020000 	.word	0x40020000
+ 8001868:	20000618 	.word	0x20000618
 
-08001b4c <spiflash_WriteBuffer>:
+0800186c <spiflash_WriteBuffer>:
   * @param  WriteAddr: FLASH's internal address to write to.
   * @param  NumByteToWrite: number of bytes to write to the FLASH.
   * @retval None
   */
 void spiflash_WriteBuffer(uint8_t* pBuffer, uint32_t WriteAddr, uint32_t NumByteToWrite)
 {
- 8001b4c:	b580      	push	{r7, lr}
- 8001b4e:	b08a      	sub	sp, #40	; 0x28
- 8001b50:	af00      	add	r7, sp, #0
- 8001b52:	60f8      	str	r0, [r7, #12]
- 8001b54:	60b9      	str	r1, [r7, #8]
- 8001b56:	607a      	str	r2, [r7, #4]
+ 800186c:	b580      	push	{r7, lr}
+ 800186e:	b08a      	sub	sp, #40	; 0x28
+ 8001870:	af00      	add	r7, sp, #0
+ 8001872:	60f8      	str	r0, [r7, #12]
+ 8001874:	60b9      	str	r1, [r7, #8]
+ 8001876:	607a      	str	r2, [r7, #4]
 	uint32_t NumOfPage = 0;
- 8001b58:	2300      	movs	r3, #0
- 8001b5a:	627b      	str	r3, [r7, #36]	; 0x24
+ 8001878:	2300      	movs	r3, #0
+ 800187a:	627b      	str	r3, [r7, #36]	; 0x24
 	uint32_t NumOfSingle = 0;
- 8001b5c:	2300      	movs	r3, #0
- 8001b5e:	623b      	str	r3, [r7, #32]
+ 800187c:	2300      	movs	r3, #0
+ 800187e:	623b      	str	r3, [r7, #32]
 	uint32_t Addr = 0;
- 8001b60:	2300      	movs	r3, #0
- 8001b62:	61fb      	str	r3, [r7, #28]
+ 8001880:	2300      	movs	r3, #0
+ 8001882:	61fb      	str	r3, [r7, #28]
 	uint32_t count = 0;
- 8001b64:	2300      	movs	r3, #0
- 8001b66:	61bb      	str	r3, [r7, #24]
+ 8001884:	2300      	movs	r3, #0
+ 8001886:	61bb      	str	r3, [r7, #24]
 	uint32_t temp = 0;
- 8001b68:	2300      	movs	r3, #0
- 8001b6a:	617b      	str	r3, [r7, #20]
+ 8001888:	2300      	movs	r3, #0
+ 800188a:	617b      	str	r3, [r7, #20]
 
 	Addr = WriteAddr % FLASH_SPI_PAGE_SIZE;
- 8001b6c:	68bb      	ldr	r3, [r7, #8]
- 8001b6e:	b2db      	uxtb	r3, r3
- 8001b70:	61fb      	str	r3, [r7, #28]
+ 800188c:	68bb      	ldr	r3, [r7, #8]
+ 800188e:	b2db      	uxtb	r3, r3
+ 8001890:	61fb      	str	r3, [r7, #28]
 	count = FLASH_SPI_PAGE_SIZE - Addr;
- 8001b72:	69fb      	ldr	r3, [r7, #28]
- 8001b74:	f5c3 7380 	rsb	r3, r3, #256	; 0x100
- 8001b78:	61bb      	str	r3, [r7, #24]
+ 8001892:	69fb      	ldr	r3, [r7, #28]
+ 8001894:	f5c3 7380 	rsb	r3, r3, #256	; 0x100
+ 8001898:	61bb      	str	r3, [r7, #24]
 	NumOfPage =  NumByteToWrite / FLASH_SPI_PAGE_SIZE;
- 8001b7a:	687b      	ldr	r3, [r7, #4]
- 8001b7c:	0a1b      	lsrs	r3, r3, #8
- 8001b7e:	627b      	str	r3, [r7, #36]	; 0x24
+ 800189a:	687b      	ldr	r3, [r7, #4]
+ 800189c:	0a1b      	lsrs	r3, r3, #8
+ 800189e:	627b      	str	r3, [r7, #36]	; 0x24
 	NumOfSingle = NumByteToWrite % FLASH_SPI_PAGE_SIZE;
- 8001b80:	687b      	ldr	r3, [r7, #4]
- 8001b82:	b2db      	uxtb	r3, r3
- 8001b84:	623b      	str	r3, [r7, #32]
+ 80018a0:	687b      	ldr	r3, [r7, #4]
+ 80018a2:	b2db      	uxtb	r3, r3
+ 80018a4:	623b      	str	r3, [r7, #32]
 
 	if (Addr == 0) /* WriteAddr is FLASH_PAGESIZE aligned  */
- 8001b86:	69fb      	ldr	r3, [r7, #28]
- 8001b88:	2b00      	cmp	r3, #0
- 8001b8a:	d121      	bne.n	8001bd0 <spiflash_WriteBuffer+0x84>
+ 80018a6:	69fb      	ldr	r3, [r7, #28]
+ 80018a8:	2b00      	cmp	r3, #0
+ 80018aa:	d121      	bne.n	80018f0 <spiflash_WriteBuffer+0x84>
 	{
 		if (NumOfPage == 0) /* NumByteToWrite < FLASH_PAGESIZE */
- 8001b8c:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 8001b8e:	2b00      	cmp	r3, #0
- 8001b90:	d113      	bne.n	8001bba <spiflash_WriteBuffer+0x6e>
+ 80018ac:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 80018ae:	2b00      	cmp	r3, #0
+ 80018b0:	d113      	bne.n	80018da <spiflash_WriteBuffer+0x6e>
 		{
 			spiflash_WritePage(pBuffer, WriteAddr, NumByteToWrite);
- 8001b92:	687a      	ldr	r2, [r7, #4]
- 8001b94:	68b9      	ldr	r1, [r7, #8]
- 8001b96:	68f8      	ldr	r0, [r7, #12]
- 8001b98:	f7ff ff9e 	bl	8001ad8 <spiflash_WritePage>
+ 80018b2:	687a      	ldr	r2, [r7, #4]
+ 80018b4:	68b9      	ldr	r1, [r7, #8]
+ 80018b6:	68f8      	ldr	r0, [r7, #12]
+ 80018b8:	f7ff ff9e 	bl	80017f8 <spiflash_WritePage>
 			{
 				spiflash_WritePage(pBuffer, WriteAddr, NumOfSingle);
 			}
 		}
 	}
 }
- 8001b9c:	e06f      	b.n	8001c7e <spiflash_WriteBuffer+0x132>
+ 80018bc:	e06f      	b.n	800199e <spiflash_WriteBuffer+0x132>
 				spiflash_WritePage(pBuffer, WriteAddr, FLASH_SPI_PAGE_SIZE);
- 8001b9e:	f44f 7280 	mov.w	r2, #256	; 0x100
- 8001ba2:	68b9      	ldr	r1, [r7, #8]
- 8001ba4:	68f8      	ldr	r0, [r7, #12]
- 8001ba6:	f7ff ff97 	bl	8001ad8 <spiflash_WritePage>
+ 80018be:	f44f 7280 	mov.w	r2, #256	; 0x100
+ 80018c2:	68b9      	ldr	r1, [r7, #8]
+ 80018c4:	68f8      	ldr	r0, [r7, #12]
+ 80018c6:	f7ff ff97 	bl	80017f8 <spiflash_WritePage>
 				WriteAddr +=  FLASH_SPI_PAGE_SIZE;
- 8001baa:	68bb      	ldr	r3, [r7, #8]
- 8001bac:	f503 7380 	add.w	r3, r3, #256	; 0x100
- 8001bb0:	60bb      	str	r3, [r7, #8]
+ 80018ca:	68bb      	ldr	r3, [r7, #8]
+ 80018cc:	f503 7380 	add.w	r3, r3, #256	; 0x100
+ 80018d0:	60bb      	str	r3, [r7, #8]
 				pBuffer += FLASH_SPI_PAGE_SIZE;
- 8001bb2:	68fb      	ldr	r3, [r7, #12]
- 8001bb4:	f503 7380 	add.w	r3, r3, #256	; 0x100
- 8001bb8:	60fb      	str	r3, [r7, #12]
+ 80018d2:	68fb      	ldr	r3, [r7, #12]
+ 80018d4:	f503 7380 	add.w	r3, r3, #256	; 0x100
+ 80018d8:	60fb      	str	r3, [r7, #12]
 			while (NumOfPage--)
- 8001bba:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 8001bbc:	1e5a      	subs	r2, r3, #1
- 8001bbe:	627a      	str	r2, [r7, #36]	; 0x24
- 8001bc0:	2b00      	cmp	r3, #0
- 8001bc2:	d1ec      	bne.n	8001b9e <spiflash_WriteBuffer+0x52>
+ 80018da:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 80018dc:	1e5a      	subs	r2, r3, #1
+ 80018de:	627a      	str	r2, [r7, #36]	; 0x24
+ 80018e0:	2b00      	cmp	r3, #0
+ 80018e2:	d1ec      	bne.n	80018be <spiflash_WriteBuffer+0x52>
 			spiflash_WritePage(pBuffer, WriteAddr, NumOfSingle);
- 8001bc4:	6a3a      	ldr	r2, [r7, #32]
- 8001bc6:	68b9      	ldr	r1, [r7, #8]
- 8001bc8:	68f8      	ldr	r0, [r7, #12]
- 8001bca:	f7ff ff85 	bl	8001ad8 <spiflash_WritePage>
+ 80018e4:	6a3a      	ldr	r2, [r7, #32]
+ 80018e6:	68b9      	ldr	r1, [r7, #8]
+ 80018e8:	68f8      	ldr	r0, [r7, #12]
+ 80018ea:	f7ff ff85 	bl	80017f8 <spiflash_WritePage>
 }
- 8001bce:	e056      	b.n	8001c7e <spiflash_WriteBuffer+0x132>
+ 80018ee:	e056      	b.n	800199e <spiflash_WriteBuffer+0x132>
 		if (NumOfPage == 0) /* NumByteToWrite < FLASH_PAGESIZE */
- 8001bd0:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 8001bd2:	2b00      	cmp	r3, #0
- 8001bd4:	d120      	bne.n	8001c18 <spiflash_WriteBuffer+0xcc>
+ 80018f0:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 80018f2:	2b00      	cmp	r3, #0
+ 80018f4:	d120      	bne.n	8001938 <spiflash_WriteBuffer+0xcc>
 			if (NumOfSingle > count) /* (NumByteToWrite + WriteAddr) > FLASH_PAGESIZE */
- 8001bd6:	6a3a      	ldr	r2, [r7, #32]
- 8001bd8:	69bb      	ldr	r3, [r7, #24]
- 8001bda:	429a      	cmp	r2, r3
- 8001bdc:	d916      	bls.n	8001c0c <spiflash_WriteBuffer+0xc0>
+ 80018f6:	6a3a      	ldr	r2, [r7, #32]
+ 80018f8:	69bb      	ldr	r3, [r7, #24]
+ 80018fa:	429a      	cmp	r2, r3
+ 80018fc:	d916      	bls.n	800192c <spiflash_WriteBuffer+0xc0>
 				temp = NumOfSingle - count;
- 8001bde:	6a3a      	ldr	r2, [r7, #32]
- 8001be0:	69bb      	ldr	r3, [r7, #24]
- 8001be2:	1ad3      	subs	r3, r2, r3
- 8001be4:	617b      	str	r3, [r7, #20]
+ 80018fe:	6a3a      	ldr	r2, [r7, #32]
+ 8001900:	69bb      	ldr	r3, [r7, #24]
+ 8001902:	1ad3      	subs	r3, r2, r3
+ 8001904:	617b      	str	r3, [r7, #20]
 				spiflash_WritePage(pBuffer, WriteAddr, count);
- 8001be6:	69ba      	ldr	r2, [r7, #24]
- 8001be8:	68b9      	ldr	r1, [r7, #8]
- 8001bea:	68f8      	ldr	r0, [r7, #12]
- 8001bec:	f7ff ff74 	bl	8001ad8 <spiflash_WritePage>
+ 8001906:	69ba      	ldr	r2, [r7, #24]
+ 8001908:	68b9      	ldr	r1, [r7, #8]
+ 800190a:	68f8      	ldr	r0, [r7, #12]
+ 800190c:	f7ff ff74 	bl	80017f8 <spiflash_WritePage>
 				WriteAddr +=  count;
- 8001bf0:	68ba      	ldr	r2, [r7, #8]
- 8001bf2:	69bb      	ldr	r3, [r7, #24]
- 8001bf4:	4413      	add	r3, r2
- 8001bf6:	60bb      	str	r3, [r7, #8]
+ 8001910:	68ba      	ldr	r2, [r7, #8]
+ 8001912:	69bb      	ldr	r3, [r7, #24]
+ 8001914:	4413      	add	r3, r2
+ 8001916:	60bb      	str	r3, [r7, #8]
 				pBuffer += count;
- 8001bf8:	68fa      	ldr	r2, [r7, #12]
- 8001bfa:	69bb      	ldr	r3, [r7, #24]
- 8001bfc:	4413      	add	r3, r2
- 8001bfe:	60fb      	str	r3, [r7, #12]
+ 8001918:	68fa      	ldr	r2, [r7, #12]
+ 800191a:	69bb      	ldr	r3, [r7, #24]
+ 800191c:	4413      	add	r3, r2
+ 800191e:	60fb      	str	r3, [r7, #12]
 				spiflash_WritePage(pBuffer, WriteAddr, temp);
- 8001c00:	697a      	ldr	r2, [r7, #20]
- 8001c02:	68b9      	ldr	r1, [r7, #8]
- 8001c04:	68f8      	ldr	r0, [r7, #12]
- 8001c06:	f7ff ff67 	bl	8001ad8 <spiflash_WritePage>
+ 8001920:	697a      	ldr	r2, [r7, #20]
+ 8001922:	68b9      	ldr	r1, [r7, #8]
+ 8001924:	68f8      	ldr	r0, [r7, #12]
+ 8001926:	f7ff ff67 	bl	80017f8 <spiflash_WritePage>
 }
- 8001c0a:	e038      	b.n	8001c7e <spiflash_WriteBuffer+0x132>
+ 800192a:	e038      	b.n	800199e <spiflash_WriteBuffer+0x132>
 				spiflash_WritePage(pBuffer, WriteAddr, NumByteToWrite);
- 8001c0c:	687a      	ldr	r2, [r7, #4]
- 8001c0e:	68b9      	ldr	r1, [r7, #8]
- 8001c10:	68f8      	ldr	r0, [r7, #12]
- 8001c12:	f7ff ff61 	bl	8001ad8 <spiflash_WritePage>
+ 800192c:	687a      	ldr	r2, [r7, #4]
+ 800192e:	68b9      	ldr	r1, [r7, #8]
+ 8001930:	68f8      	ldr	r0, [r7, #12]
+ 8001932:	f7ff ff61 	bl	80017f8 <spiflash_WritePage>
 }
- 8001c16:	e032      	b.n	8001c7e <spiflash_WriteBuffer+0x132>
+ 8001936:	e032      	b.n	800199e <spiflash_WriteBuffer+0x132>
 			NumByteToWrite -= count;
- 8001c18:	687a      	ldr	r2, [r7, #4]
- 8001c1a:	69bb      	ldr	r3, [r7, #24]
- 8001c1c:	1ad3      	subs	r3, r2, r3
- 8001c1e:	607b      	str	r3, [r7, #4]
+ 8001938:	687a      	ldr	r2, [r7, #4]
+ 800193a:	69bb      	ldr	r3, [r7, #24]
+ 800193c:	1ad3      	subs	r3, r2, r3
+ 800193e:	607b      	str	r3, [r7, #4]
 			NumOfPage =  NumByteToWrite / FLASH_SPI_PAGE_SIZE;
- 8001c20:	687b      	ldr	r3, [r7, #4]
- 8001c22:	0a1b      	lsrs	r3, r3, #8
- 8001c24:	627b      	str	r3, [r7, #36]	; 0x24
+ 8001940:	687b      	ldr	r3, [r7, #4]
+ 8001942:	0a1b      	lsrs	r3, r3, #8
+ 8001944:	627b      	str	r3, [r7, #36]	; 0x24
 			NumOfSingle = NumByteToWrite % FLASH_SPI_PAGE_SIZE;
- 8001c26:	687b      	ldr	r3, [r7, #4]
- 8001c28:	b2db      	uxtb	r3, r3
- 8001c2a:	623b      	str	r3, [r7, #32]
+ 8001946:	687b      	ldr	r3, [r7, #4]
+ 8001948:	b2db      	uxtb	r3, r3
+ 800194a:	623b      	str	r3, [r7, #32]
 			spiflash_WritePage(pBuffer, WriteAddr, count);
- 8001c2c:	69ba      	ldr	r2, [r7, #24]
- 8001c2e:	68b9      	ldr	r1, [r7, #8]
- 8001c30:	68f8      	ldr	r0, [r7, #12]
- 8001c32:	f7ff ff51 	bl	8001ad8 <spiflash_WritePage>
+ 800194c:	69ba      	ldr	r2, [r7, #24]
+ 800194e:	68b9      	ldr	r1, [r7, #8]
+ 8001950:	68f8      	ldr	r0, [r7, #12]
+ 8001952:	f7ff ff51 	bl	80017f8 <spiflash_WritePage>
 			WriteAddr +=  count;
- 8001c36:	68ba      	ldr	r2, [r7, #8]
- 8001c38:	69bb      	ldr	r3, [r7, #24]
- 8001c3a:	4413      	add	r3, r2
- 8001c3c:	60bb      	str	r3, [r7, #8]
+ 8001956:	68ba      	ldr	r2, [r7, #8]
+ 8001958:	69bb      	ldr	r3, [r7, #24]
+ 800195a:	4413      	add	r3, r2
+ 800195c:	60bb      	str	r3, [r7, #8]
 			pBuffer += count;
- 8001c3e:	68fa      	ldr	r2, [r7, #12]
- 8001c40:	69bb      	ldr	r3, [r7, #24]
- 8001c42:	4413      	add	r3, r2
- 8001c44:	60fb      	str	r3, [r7, #12]
+ 800195e:	68fa      	ldr	r2, [r7, #12]
+ 8001960:	69bb      	ldr	r3, [r7, #24]
+ 8001962:	4413      	add	r3, r2
+ 8001964:	60fb      	str	r3, [r7, #12]
 			while (NumOfPage--)
- 8001c46:	e00d      	b.n	8001c64 <spiflash_WriteBuffer+0x118>
+ 8001966:	e00d      	b.n	8001984 <spiflash_WriteBuffer+0x118>
 				spiflash_WritePage(pBuffer, WriteAddr, FLASH_SPI_PAGE_SIZE);
- 8001c48:	f44f 7280 	mov.w	r2, #256	; 0x100
- 8001c4c:	68b9      	ldr	r1, [r7, #8]
- 8001c4e:	68f8      	ldr	r0, [r7, #12]
- 8001c50:	f7ff ff42 	bl	8001ad8 <spiflash_WritePage>
+ 8001968:	f44f 7280 	mov.w	r2, #256	; 0x100
+ 800196c:	68b9      	ldr	r1, [r7, #8]
+ 800196e:	68f8      	ldr	r0, [r7, #12]
+ 8001970:	f7ff ff42 	bl	80017f8 <spiflash_WritePage>
 				WriteAddr +=  FLASH_SPI_PAGE_SIZE;
- 8001c54:	68bb      	ldr	r3, [r7, #8]
- 8001c56:	f503 7380 	add.w	r3, r3, #256	; 0x100
- 8001c5a:	60bb      	str	r3, [r7, #8]
+ 8001974:	68bb      	ldr	r3, [r7, #8]
+ 8001976:	f503 7380 	add.w	r3, r3, #256	; 0x100
+ 800197a:	60bb      	str	r3, [r7, #8]
 				pBuffer += FLASH_SPI_PAGE_SIZE;
- 8001c5c:	68fb      	ldr	r3, [r7, #12]
- 8001c5e:	f503 7380 	add.w	r3, r3, #256	; 0x100
- 8001c62:	60fb      	str	r3, [r7, #12]
+ 800197c:	68fb      	ldr	r3, [r7, #12]
+ 800197e:	f503 7380 	add.w	r3, r3, #256	; 0x100
+ 8001982:	60fb      	str	r3, [r7, #12]
 			while (NumOfPage--)
- 8001c64:	6a7b      	ldr	r3, [r7, #36]	; 0x24
- 8001c66:	1e5a      	subs	r2, r3, #1
- 8001c68:	627a      	str	r2, [r7, #36]	; 0x24
- 8001c6a:	2b00      	cmp	r3, #0
- 8001c6c:	d1ec      	bne.n	8001c48 <spiflash_WriteBuffer+0xfc>
+ 8001984:	6a7b      	ldr	r3, [r7, #36]	; 0x24
+ 8001986:	1e5a      	subs	r2, r3, #1
+ 8001988:	627a      	str	r2, [r7, #36]	; 0x24
+ 800198a:	2b00      	cmp	r3, #0
+ 800198c:	d1ec      	bne.n	8001968 <spiflash_WriteBuffer+0xfc>
 			if (NumOfSingle != 0)
- 8001c6e:	6a3b      	ldr	r3, [r7, #32]
- 8001c70:	2b00      	cmp	r3, #0
- 8001c72:	d004      	beq.n	8001c7e <spiflash_WriteBuffer+0x132>
+ 800198e:	6a3b      	ldr	r3, [r7, #32]
+ 8001990:	2b00      	cmp	r3, #0
+ 8001992:	d004      	beq.n	800199e <spiflash_WriteBuffer+0x132>
 				spiflash_WritePage(pBuffer, WriteAddr, NumOfSingle);
- 8001c74:	6a3a      	ldr	r2, [r7, #32]
- 8001c76:	68b9      	ldr	r1, [r7, #8]
- 8001c78:	68f8      	ldr	r0, [r7, #12]
- 8001c7a:	f7ff ff2d 	bl	8001ad8 <spiflash_WritePage>
+ 8001994:	6a3a      	ldr	r2, [r7, #32]
+ 8001996:	68b9      	ldr	r1, [r7, #8]
+ 8001998:	68f8      	ldr	r0, [r7, #12]
+ 800199a:	f7ff ff2d 	bl	80017f8 <spiflash_WritePage>
 }
- 8001c7e:	bf00      	nop
- 8001c80:	3728      	adds	r7, #40	; 0x28
- 8001c82:	46bd      	mov	sp, r7
- 8001c84:	bd80      	pop	{r7, pc}
+ 800199e:	bf00      	nop
+ 80019a0:	3728      	adds	r7, #40	; 0x28
+ 80019a2:	46bd      	mov	sp, r7
+ 80019a4:	bd80      	pop	{r7, pc}
+	...
+
+080019a8 <__io_putchar>:
+#endif /* __GNUC__ */
+#define DBG_BUFF_LEN 64
+char dbg_buff[DBG_BUFF_LEN];
+uint8_t dbg_buff_idx;
+PUTCHAR_PROTOTYPE
+{
+ 80019a8:	b480      	push	{r7}
+ 80019aa:	b083      	sub	sp, #12
+ 80019ac:	af00      	add	r7, sp, #0
+ 80019ae:	6078      	str	r0, [r7, #4]
+	if(dbg_buff_idx<DBG_BUFF_LEN)
+ 80019b0:	4b0f      	ldr	r3, [pc, #60]	; (80019f0 <__io_putchar+0x48>)
+ 80019b2:	781b      	ldrb	r3, [r3, #0]
+ 80019b4:	2b3f      	cmp	r3, #63	; 0x3f
+ 80019b6:	d80a      	bhi.n	80019ce <__io_putchar+0x26>
+	{
+		dbg_buff[dbg_buff_idx++] = ch;
+ 80019b8:	4b0d      	ldr	r3, [pc, #52]	; (80019f0 <__io_putchar+0x48>)
+ 80019ba:	781b      	ldrb	r3, [r3, #0]
+ 80019bc:	1c5a      	adds	r2, r3, #1
+ 80019be:	b2d1      	uxtb	r1, r2
+ 80019c0:	4a0b      	ldr	r2, [pc, #44]	; (80019f0 <__io_putchar+0x48>)
+ 80019c2:	7011      	strb	r1, [r2, #0]
+ 80019c4:	461a      	mov	r2, r3
+ 80019c6:	687b      	ldr	r3, [r7, #4]
+ 80019c8:	b2d9      	uxtb	r1, r3
+ 80019ca:	4b0a      	ldr	r3, [pc, #40]	; (80019f4 <__io_putchar+0x4c>)
+ 80019cc:	5499      	strb	r1, [r3, r2]
+	}
+
+	if(ch == '\n' || ch == '\r')
+ 80019ce:	687b      	ldr	r3, [r7, #4]
+ 80019d0:	2b0a      	cmp	r3, #10
+ 80019d2:	d002      	beq.n	80019da <__io_putchar+0x32>
+ 80019d4:	687b      	ldr	r3, [r7, #4]
+ 80019d6:	2b0d      	cmp	r3, #13
+ 80019d8:	d102      	bne.n	80019e0 <__io_putchar+0x38>
+	{
+	  //CDC_Transmit_FS((uint8_t *)&dbg_buff[0], dbg_buff_idx);
+	  dbg_buff_idx=0;
+ 80019da:	4b05      	ldr	r3, [pc, #20]	; (80019f0 <__io_putchar+0x48>)
+ 80019dc:	2200      	movs	r2, #0
+ 80019de:	701a      	strb	r2, [r3, #0]
+	}
+	return ch;
+ 80019e0:	687b      	ldr	r3, [r7, #4]
+}
+ 80019e2:	4618      	mov	r0, r3
+ 80019e4:	370c      	adds	r7, #12
+ 80019e6:	46bd      	mov	sp, r7
+ 80019e8:	f85d 7b04 	ldr.w	r7, [sp], #4
+ 80019ec:	4770      	bx	lr
+ 80019ee:	bf00      	nop
+ 80019f0:	200006b0 	.word	0x200006b0
+ 80019f4:	20000670 	.word	0x20000670
+
+080019f8 <main>:
+/**
+  * @brief  The application entry point.
+  * @retval int
+  */
+int main(void)
+{
+ 80019f8:	b580      	push	{r7, lr}
+ 80019fa:	af00      	add	r7, sp, #0
+  /* USER CODE END 1 */
+
+  /* MCU Configuration--------------------------------------------------------*/
+
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  HAL_Init();
+ 80019fc:	f000 fb0a 	bl	8002014 <HAL_Init>
+  /* USER CODE BEGIN Init */
+
+  /* USER CODE END Init */
+
+  /* Configure the system clock */
+  SystemClock_Config();
+ 8001a00:	f000 f81c 	bl	8001a3c <SystemClock_Config>
+  /* USER CODE BEGIN SysInit */
+
+  /* USER CODE END SysInit */
+
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+ 8001a04:	f000 f8b8 	bl	8001b78 <MX_GPIO_Init>
+  MX_SPI1_Init();
+ 8001a08:	f000 f880 	bl	8001b0c <MX_SPI1_Init>
+  MX_USB_DEVICE_Init();
+ 8001a0c:	f006 fda8 	bl	8008560 <MX_USB_DEVICE_Init>
+  /* USER CODE BEGIN WHILE */
+  while (1)
+  {
+	  //printf("I am Mayank Patel. How are you?\n");
+
+	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+ 8001a10:	2200      	movs	r2, #0
+ 8001a12:	f44f 5100 	mov.w	r1, #8192	; 0x2000
+ 8001a16:	4808      	ldr	r0, [pc, #32]	; (8001a38 <main+0x40>)
+ 8001a18:	f000 fe28 	bl	800266c <HAL_GPIO_WritePin>
+	  HAL_Delay(35);
+ 8001a1c:	2023      	movs	r0, #35	; 0x23
+ 8001a1e:	f000 fb6b 	bl	80020f8 <HAL_Delay>
+	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+ 8001a22:	2201      	movs	r2, #1
+ 8001a24:	f44f 5100 	mov.w	r1, #8192	; 0x2000
+ 8001a28:	4803      	ldr	r0, [pc, #12]	; (8001a38 <main+0x40>)
+ 8001a2a:	f000 fe1f 	bl	800266c <HAL_GPIO_WritePin>
+	  HAL_Delay(2000);
+ 8001a2e:	f44f 60fa 	mov.w	r0, #2000	; 0x7d0
+ 8001a32:	f000 fb61 	bl	80020f8 <HAL_Delay>
+	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+ 8001a36:	e7eb      	b.n	8001a10 <main+0x18>
+ 8001a38:	40020800 	.word	0x40020800
+
+08001a3c <SystemClock_Config>:
+/**
+  * @brief System Clock Configuration
+  * @retval None
+  */
+void SystemClock_Config(void)
+{
+ 8001a3c:	b580      	push	{r7, lr}
+ 8001a3e:	b094      	sub	sp, #80	; 0x50
+ 8001a40:	af00      	add	r7, sp, #0
+  RCC_OscInitTypeDef RCC_OscInitStruct = {0};
+ 8001a42:	f107 0320 	add.w	r3, r7, #32
+ 8001a46:	2230      	movs	r2, #48	; 0x30
+ 8001a48:	2100      	movs	r1, #0
+ 8001a4a:	4618      	mov	r0, r3
+ 8001a4c:	f008 fb30 	bl	800a0b0 <memset>
+  RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+ 8001a50:	f107 030c 	add.w	r3, r7, #12
+ 8001a54:	2200      	movs	r2, #0
+ 8001a56:	601a      	str	r2, [r3, #0]
+ 8001a58:	605a      	str	r2, [r3, #4]
+ 8001a5a:	609a      	str	r2, [r3, #8]
+ 8001a5c:	60da      	str	r2, [r3, #12]
+ 8001a5e:	611a      	str	r2, [r3, #16]
+
+  /** Configure the main internal regulator output voltage
+  */
+  __HAL_RCC_PWR_CLK_ENABLE();
+ 8001a60:	2300      	movs	r3, #0
+ 8001a62:	60bb      	str	r3, [r7, #8]
+ 8001a64:	4b27      	ldr	r3, [pc, #156]	; (8001b04 <SystemClock_Config+0xc8>)
+ 8001a66:	6c1b      	ldr	r3, [r3, #64]	; 0x40
+ 8001a68:	4a26      	ldr	r2, [pc, #152]	; (8001b04 <SystemClock_Config+0xc8>)
+ 8001a6a:	f043 5380 	orr.w	r3, r3, #268435456	; 0x10000000
+ 8001a6e:	6413      	str	r3, [r2, #64]	; 0x40
+ 8001a70:	4b24      	ldr	r3, [pc, #144]	; (8001b04 <SystemClock_Config+0xc8>)
+ 8001a72:	6c1b      	ldr	r3, [r3, #64]	; 0x40
+ 8001a74:	f003 5380 	and.w	r3, r3, #268435456	; 0x10000000
+ 8001a78:	60bb      	str	r3, [r7, #8]
+ 8001a7a:	68bb      	ldr	r3, [r7, #8]
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+ 8001a7c:	2300      	movs	r3, #0
+ 8001a7e:	607b      	str	r3, [r7, #4]
+ 8001a80:	4b21      	ldr	r3, [pc, #132]	; (8001b08 <SystemClock_Config+0xcc>)
+ 8001a82:	681b      	ldr	r3, [r3, #0]
+ 8001a84:	4a20      	ldr	r2, [pc, #128]	; (8001b08 <SystemClock_Config+0xcc>)
+ 8001a86:	f443 4340 	orr.w	r3, r3, #49152	; 0xc000
+ 8001a8a:	6013      	str	r3, [r2, #0]
+ 8001a8c:	4b1e      	ldr	r3, [pc, #120]	; (8001b08 <SystemClock_Config+0xcc>)
+ 8001a8e:	681b      	ldr	r3, [r3, #0]
+ 8001a90:	f403 4340 	and.w	r3, r3, #49152	; 0xc000
+ 8001a94:	607b      	str	r3, [r7, #4]
+ 8001a96:	687b      	ldr	r3, [r7, #4]
+
+  /** Initializes the RCC Oscillators according to the specified parameters
+  * in the RCC_OscInitTypeDef structure.
+  */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+ 8001a98:	2301      	movs	r3, #1
+ 8001a9a:	623b      	str	r3, [r7, #32]
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+ 8001a9c:	f44f 3380 	mov.w	r3, #65536	; 0x10000
+ 8001aa0:	627b      	str	r3, [r7, #36]	; 0x24
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+ 8001aa2:	2302      	movs	r3, #2
+ 8001aa4:	63bb      	str	r3, [r7, #56]	; 0x38
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+ 8001aa6:	f44f 0380 	mov.w	r3, #4194304	; 0x400000
+ 8001aaa:	63fb      	str	r3, [r7, #60]	; 0x3c
+  RCC_OscInitStruct.PLL.PLLM = 25;
+ 8001aac:	2319      	movs	r3, #25
+ 8001aae:	643b      	str	r3, [r7, #64]	; 0x40
+  RCC_OscInitStruct.PLL.PLLN = 192;
+ 8001ab0:	23c0      	movs	r3, #192	; 0xc0
+ 8001ab2:	647b      	str	r3, [r7, #68]	; 0x44
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV6;
+ 8001ab4:	2306      	movs	r3, #6
+ 8001ab6:	64bb      	str	r3, [r7, #72]	; 0x48
+  RCC_OscInitStruct.PLL.PLLQ = 4;
+ 8001ab8:	2304      	movs	r3, #4
+ 8001aba:	64fb      	str	r3, [r7, #76]	; 0x4c
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+ 8001abc:	f107 0320 	add.w	r3, r7, #32
+ 8001ac0:	4618      	mov	r0, r3
+ 8001ac2:	f002 f83d 	bl	8003b40 <HAL_RCC_OscConfig>
+ 8001ac6:	4603      	mov	r3, r0
+ 8001ac8:	2b00      	cmp	r3, #0
+ 8001aca:	d001      	beq.n	8001ad0 <SystemClock_Config+0x94>
+  {
+    Error_Handler();
+ 8001acc:	f000 f8d6 	bl	8001c7c <Error_Handler>
+  }
+
+  /** Initializes the CPU, AHB and APB buses clocks
+  */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+ 8001ad0:	230f      	movs	r3, #15
+ 8001ad2:	60fb      	str	r3, [r7, #12]
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+ 8001ad4:	2302      	movs	r3, #2
+ 8001ad6:	613b      	str	r3, [r7, #16]
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+ 8001ad8:	2300      	movs	r3, #0
+ 8001ada:	617b      	str	r3, [r7, #20]
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+ 8001adc:	2300      	movs	r3, #0
+ 8001ade:	61bb      	str	r3, [r7, #24]
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+ 8001ae0:	2300      	movs	r3, #0
+ 8001ae2:	61fb      	str	r3, [r7, #28]
+
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_1) != HAL_OK)
+ 8001ae4:	f107 030c 	add.w	r3, r7, #12
+ 8001ae8:	2101      	movs	r1, #1
+ 8001aea:	4618      	mov	r0, r3
+ 8001aec:	f002 faa0 	bl	8004030 <HAL_RCC_ClockConfig>
+ 8001af0:	4603      	mov	r3, r0
+ 8001af2:	2b00      	cmp	r3, #0
+ 8001af4:	d001      	beq.n	8001afa <SystemClock_Config+0xbe>
+  {
+    Error_Handler();
+ 8001af6:	f000 f8c1 	bl	8001c7c <Error_Handler>
+  }
+}
+ 8001afa:	bf00      	nop
+ 8001afc:	3750      	adds	r7, #80	; 0x50
+ 8001afe:	46bd      	mov	sp, r7
+ 8001b00:	bd80      	pop	{r7, pc}
+ 8001b02:	bf00      	nop
+ 8001b04:	40023800 	.word	0x40023800
+ 8001b08:	40007000 	.word	0x40007000
+
+08001b0c <MX_SPI1_Init>:
+  * @brief SPI1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_SPI1_Init(void)
+{
+ 8001b0c:	b580      	push	{r7, lr}
+ 8001b0e:	af00      	add	r7, sp, #0
+
+  /* USER CODE BEGIN SPI1_Init 1 */
+
+  /* USER CODE END SPI1_Init 1 */
+  /* SPI1 parameter configuration*/
+  hspi1.Instance = SPI1;
+ 8001b10:	4b17      	ldr	r3, [pc, #92]	; (8001b70 <MX_SPI1_Init+0x64>)
+ 8001b12:	4a18      	ldr	r2, [pc, #96]	; (8001b74 <MX_SPI1_Init+0x68>)
+ 8001b14:	601a      	str	r2, [r3, #0]
+  hspi1.Init.Mode = SPI_MODE_MASTER;
+ 8001b16:	4b16      	ldr	r3, [pc, #88]	; (8001b70 <MX_SPI1_Init+0x64>)
+ 8001b18:	f44f 7282 	mov.w	r2, #260	; 0x104
+ 8001b1c:	605a      	str	r2, [r3, #4]
+  hspi1.Init.Direction = SPI_DIRECTION_2LINES;
+ 8001b1e:	4b14      	ldr	r3, [pc, #80]	; (8001b70 <MX_SPI1_Init+0x64>)
+ 8001b20:	2200      	movs	r2, #0
+ 8001b22:	609a      	str	r2, [r3, #8]
+  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
+ 8001b24:	4b12      	ldr	r3, [pc, #72]	; (8001b70 <MX_SPI1_Init+0x64>)
+ 8001b26:	2200      	movs	r2, #0
+ 8001b28:	60da      	str	r2, [r3, #12]
+  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
+ 8001b2a:	4b11      	ldr	r3, [pc, #68]	; (8001b70 <MX_SPI1_Init+0x64>)
+ 8001b2c:	2200      	movs	r2, #0
+ 8001b2e:	611a      	str	r2, [r3, #16]
+  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
+ 8001b30:	4b0f      	ldr	r3, [pc, #60]	; (8001b70 <MX_SPI1_Init+0x64>)
+ 8001b32:	2200      	movs	r2, #0
+ 8001b34:	615a      	str	r2, [r3, #20]
+  hspi1.Init.NSS = SPI_NSS_SOFT;
+ 8001b36:	4b0e      	ldr	r3, [pc, #56]	; (8001b70 <MX_SPI1_Init+0x64>)
+ 8001b38:	f44f 7200 	mov.w	r2, #512	; 0x200
+ 8001b3c:	619a      	str	r2, [r3, #24]
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+ 8001b3e:	4b0c      	ldr	r3, [pc, #48]	; (8001b70 <MX_SPI1_Init+0x64>)
+ 8001b40:	2200      	movs	r2, #0
+ 8001b42:	61da      	str	r2, [r3, #28]
+  hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
+ 8001b44:	4b0a      	ldr	r3, [pc, #40]	; (8001b70 <MX_SPI1_Init+0x64>)
+ 8001b46:	2200      	movs	r2, #0
+ 8001b48:	621a      	str	r2, [r3, #32]
+  hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
+ 8001b4a:	4b09      	ldr	r3, [pc, #36]	; (8001b70 <MX_SPI1_Init+0x64>)
+ 8001b4c:	2200      	movs	r2, #0
+ 8001b4e:	625a      	str	r2, [r3, #36]	; 0x24
+  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+ 8001b50:	4b07      	ldr	r3, [pc, #28]	; (8001b70 <MX_SPI1_Init+0x64>)
+ 8001b52:	2200      	movs	r2, #0
+ 8001b54:	629a      	str	r2, [r3, #40]	; 0x28
+  hspi1.Init.CRCPolynomial = 10;
+ 8001b56:	4b06      	ldr	r3, [pc, #24]	; (8001b70 <MX_SPI1_Init+0x64>)
+ 8001b58:	220a      	movs	r2, #10
+ 8001b5a:	62da      	str	r2, [r3, #44]	; 0x2c
+  if (HAL_SPI_Init(&hspi1) != HAL_OK)
+ 8001b5c:	4804      	ldr	r0, [pc, #16]	; (8001b70 <MX_SPI1_Init+0x64>)
+ 8001b5e:	f002 fc1f 	bl	80043a0 <HAL_SPI_Init>
+ 8001b62:	4603      	mov	r3, r0
+ 8001b64:	2b00      	cmp	r3, #0
+ 8001b66:	d001      	beq.n	8001b6c <MX_SPI1_Init+0x60>
+  {
+    Error_Handler();
+ 8001b68:	f000 f888 	bl	8001c7c <Error_Handler>
+  }
+  /* USER CODE BEGIN SPI1_Init 2 */
+
+  /* USER CODE END SPI1_Init 2 */
+
+}
+ 8001b6c:	bf00      	nop
+ 8001b6e:	bd80      	pop	{r7, pc}
+ 8001b70:	20000618 	.word	0x20000618
+ 8001b74:	40013000 	.word	0x40013000
+
+08001b78 <MX_GPIO_Init>:
+  * @brief GPIO Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_GPIO_Init(void)
+{
+ 8001b78:	b580      	push	{r7, lr}
+ 8001b7a:	b08a      	sub	sp, #40	; 0x28
+ 8001b7c:	af00      	add	r7, sp, #0
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+ 8001b7e:	f107 0314 	add.w	r3, r7, #20
+ 8001b82:	2200      	movs	r2, #0
+ 8001b84:	601a      	str	r2, [r3, #0]
+ 8001b86:	605a      	str	r2, [r3, #4]
+ 8001b88:	609a      	str	r2, [r3, #8]
+ 8001b8a:	60da      	str	r2, [r3, #12]
+ 8001b8c:	611a      	str	r2, [r3, #16]
+/* USER CODE BEGIN MX_GPIO_Init_1 */
+/* USER CODE END MX_GPIO_Init_1 */
+
+  /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+ 8001b8e:	2300      	movs	r3, #0
+ 8001b90:	613b      	str	r3, [r7, #16]
+ 8001b92:	4b37      	ldr	r3, [pc, #220]	; (8001c70 <MX_GPIO_Init+0xf8>)
+ 8001b94:	6b1b      	ldr	r3, [r3, #48]	; 0x30
+ 8001b96:	4a36      	ldr	r2, [pc, #216]	; (8001c70 <MX_GPIO_Init+0xf8>)
+ 8001b98:	f043 0304 	orr.w	r3, r3, #4
+ 8001b9c:	6313      	str	r3, [r2, #48]	; 0x30
+ 8001b9e:	4b34      	ldr	r3, [pc, #208]	; (8001c70 <MX_GPIO_Init+0xf8>)
+ 8001ba0:	6b1b      	ldr	r3, [r3, #48]	; 0x30
+ 8001ba2:	f003 0304 	and.w	r3, r3, #4
+ 8001ba6:	613b      	str	r3, [r7, #16]
+ 8001ba8:	693b      	ldr	r3, [r7, #16]
+  __HAL_RCC_GPIOH_CLK_ENABLE();
+ 8001baa:	2300      	movs	r3, #0
+ 8001bac:	60fb      	str	r3, [r7, #12]
+ 8001bae:	4b30      	ldr	r3, [pc, #192]	; (8001c70 <MX_GPIO_Init+0xf8>)
+ 8001bb0:	6b1b      	ldr	r3, [r3, #48]	; 0x30
+ 8001bb2:	4a2f      	ldr	r2, [pc, #188]	; (8001c70 <MX_GPIO_Init+0xf8>)
+ 8001bb4:	f043 0380 	orr.w	r3, r3, #128	; 0x80
+ 8001bb8:	6313      	str	r3, [r2, #48]	; 0x30
+ 8001bba:	4b2d      	ldr	r3, [pc, #180]	; (8001c70 <MX_GPIO_Init+0xf8>)
+ 8001bbc:	6b1b      	ldr	r3, [r3, #48]	; 0x30
+ 8001bbe:	f003 0380 	and.w	r3, r3, #128	; 0x80
+ 8001bc2:	60fb      	str	r3, [r7, #12]
+ 8001bc4:	68fb      	ldr	r3, [r7, #12]
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+ 8001bc6:	2300      	movs	r3, #0
+ 8001bc8:	60bb      	str	r3, [r7, #8]
+ 8001bca:	4b29      	ldr	r3, [pc, #164]	; (8001c70 <MX_GPIO_Init+0xf8>)
+ 8001bcc:	6b1b      	ldr	r3, [r3, #48]	; 0x30
+ 8001bce:	4a28      	ldr	r2, [pc, #160]	; (8001c70 <MX_GPIO_Init+0xf8>)
+ 8001bd0:	f043 0301 	orr.w	r3, r3, #1
+ 8001bd4:	6313      	str	r3, [r2, #48]	; 0x30
+ 8001bd6:	4b26      	ldr	r3, [pc, #152]	; (8001c70 <MX_GPIO_Init+0xf8>)
+ 8001bd8:	6b1b      	ldr	r3, [r3, #48]	; 0x30
+ 8001bda:	f003 0301 	and.w	r3, r3, #1
+ 8001bde:	60bb      	str	r3, [r7, #8]
+ 8001be0:	68bb      	ldr	r3, [r7, #8]
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+ 8001be2:	2300      	movs	r3, #0
+ 8001be4:	607b      	str	r3, [r7, #4]
+ 8001be6:	4b22      	ldr	r3, [pc, #136]	; (8001c70 <MX_GPIO_Init+0xf8>)
+ 8001be8:	6b1b      	ldr	r3, [r3, #48]	; 0x30
+ 8001bea:	4a21      	ldr	r2, [pc, #132]	; (8001c70 <MX_GPIO_Init+0xf8>)
+ 8001bec:	f043 0302 	orr.w	r3, r3, #2
+ 8001bf0:	6313      	str	r3, [r2, #48]	; 0x30
+ 8001bf2:	4b1f      	ldr	r3, [pc, #124]	; (8001c70 <MX_GPIO_Init+0xf8>)
+ 8001bf4:	6b1b      	ldr	r3, [r3, #48]	; 0x30
+ 8001bf6:	f003 0302 	and.w	r3, r3, #2
+ 8001bfa:	607b      	str	r3, [r7, #4]
+ 8001bfc:	687b      	ldr	r3, [r7, #4]
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
+ 8001bfe:	2200      	movs	r2, #0
+ 8001c00:	f44f 5100 	mov.w	r1, #8192	; 0x2000
+ 8001c04:	481b      	ldr	r0, [pc, #108]	; (8001c74 <MX_GPIO_Init+0xfc>)
+ 8001c06:	f000 fd31 	bl	800266c <HAL_GPIO_WritePin>
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(FLASH_CS_GPIO_Port, FLASH_CS_Pin, GPIO_PIN_RESET);
+ 8001c0a:	2200      	movs	r2, #0
+ 8001c0c:	2110      	movs	r1, #16
+ 8001c0e:	481a      	ldr	r0, [pc, #104]	; (8001c78 <MX_GPIO_Init+0x100>)
+ 8001c10:	f000 fd2c 	bl	800266c <HAL_GPIO_WritePin>
+
+  /*Configure GPIO pin : LED_Pin */
+  GPIO_InitStruct.Pin = LED_Pin;
+ 8001c14:	f44f 5300 	mov.w	r3, #8192	; 0x2000
+ 8001c18:	617b      	str	r3, [r7, #20]
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+ 8001c1a:	2301      	movs	r3, #1
+ 8001c1c:	61bb      	str	r3, [r7, #24]
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+ 8001c1e:	2300      	movs	r3, #0
+ 8001c20:	61fb      	str	r3, [r7, #28]
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+ 8001c22:	2300      	movs	r3, #0
+ 8001c24:	623b      	str	r3, [r7, #32]
+  HAL_GPIO_Init(LED_GPIO_Port, &GPIO_InitStruct);
+ 8001c26:	f107 0314 	add.w	r3, r7, #20
+ 8001c2a:	4619      	mov	r1, r3
+ 8001c2c:	4811      	ldr	r0, [pc, #68]	; (8001c74 <MX_GPIO_Init+0xfc>)
+ 8001c2e:	f000 fb99 	bl	8002364 <HAL_GPIO_Init>
+
+  /*Configure GPIO pin : BUTTON_Pin */
+  GPIO_InitStruct.Pin = BUTTON_Pin;
+ 8001c32:	2301      	movs	r3, #1
+ 8001c34:	617b      	str	r3, [r7, #20]
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+ 8001c36:	2300      	movs	r3, #0
+ 8001c38:	61bb      	str	r3, [r7, #24]
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+ 8001c3a:	2301      	movs	r3, #1
+ 8001c3c:	61fb      	str	r3, [r7, #28]
+  HAL_GPIO_Init(BUTTON_GPIO_Port, &GPIO_InitStruct);
+ 8001c3e:	f107 0314 	add.w	r3, r7, #20
+ 8001c42:	4619      	mov	r1, r3
+ 8001c44:	480c      	ldr	r0, [pc, #48]	; (8001c78 <MX_GPIO_Init+0x100>)
+ 8001c46:	f000 fb8d 	bl	8002364 <HAL_GPIO_Init>
+
+  /*Configure GPIO pin : FLASH_CS_Pin */
+  GPIO_InitStruct.Pin = FLASH_CS_Pin;
+ 8001c4a:	2310      	movs	r3, #16
+ 8001c4c:	617b      	str	r3, [r7, #20]
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+ 8001c4e:	2301      	movs	r3, #1
+ 8001c50:	61bb      	str	r3, [r7, #24]
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+ 8001c52:	2300      	movs	r3, #0
+ 8001c54:	61fb      	str	r3, [r7, #28]
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+ 8001c56:	2300      	movs	r3, #0
+ 8001c58:	623b      	str	r3, [r7, #32]
+  HAL_GPIO_Init(FLASH_CS_GPIO_Port, &GPIO_InitStruct);
+ 8001c5a:	f107 0314 	add.w	r3, r7, #20
+ 8001c5e:	4619      	mov	r1, r3
+ 8001c60:	4805      	ldr	r0, [pc, #20]	; (8001c78 <MX_GPIO_Init+0x100>)
+ 8001c62:	f000 fb7f 	bl	8002364 <HAL_GPIO_Init>
+
+/* USER CODE BEGIN MX_GPIO_Init_2 */
+/* USER CODE END MX_GPIO_Init_2 */
+}
+ 8001c66:	bf00      	nop
+ 8001c68:	3728      	adds	r7, #40	; 0x28
+ 8001c6a:	46bd      	mov	sp, r7
+ 8001c6c:	bd80      	pop	{r7, pc}
+ 8001c6e:	bf00      	nop
+ 8001c70:	40023800 	.word	0x40023800
+ 8001c74:	40020800 	.word	0x40020800
+ 8001c78:	40020000 	.word	0x40020000
+
+08001c7c <Error_Handler>:
+/**
+  * @brief  This function is executed in case of error occurrence.
+  * @retval None
+  */
+void Error_Handler(void)
+{
+ 8001c7c:	b480      	push	{r7}
+ 8001c7e:	af00      	add	r7, sp, #0
+  \details Disables IRQ interrupts by setting special-purpose register PRIMASK.
+           Can only be executed in Privileged modes.
+ */
+__STATIC_FORCEINLINE void __disable_irq(void)
+{
+  __ASM volatile ("cpsid i" : : : "memory");
+ 8001c80:	b672      	cpsid	i
+}
+ 8001c82:	bf00      	nop
+  /* USER CODE BEGIN Error_Handler_Debug */
+  /* User can add his own implementation to report the HAL error return state */
+  __disable_irq();
+  while (1)
+ 8001c84:	e7fe      	b.n	8001c84 <Error_Handler+0x8>
 	...
 
 08001c88 <HAL_MspInit>:
@@ -3721,7 +3723,7 @@ void OTG_FS_IRQHandler(void)
  8001e06:	bf00      	nop
  8001e08:	bd80      	pop	{r7, pc}
  8001e0a:	bf00      	nop
- 8001e0c:	20001bb8 	.word	0x20001bb8
+ 8001e0c:	20001b9c 	.word	0x20001b9c
 
 08001e10 <_getpid>:
 void initialise_monitor_handles()
@@ -3848,7 +3850,7 @@ __attribute__((weak)) int _write(int file, char *ptr, int len)
  8001ea4:	60ba      	str	r2, [r7, #8]
  8001ea6:	781b      	ldrb	r3, [r3, #0]
  8001ea8:	4618      	mov	r0, r3
- 8001eaa:	f7ff fb19 	bl	80014e0 <__io_putchar>
+ 8001eaa:	f7ff fd7d 	bl	80019a8 <__io_putchar>
   for (DataIdx = 0; DataIdx < len; DataIdx++)
  8001eae:	697b      	ldr	r3, [r7, #20]
  8001eb0:	3301      	adds	r3, #1
@@ -4027,8 +4029,8 @@ void *_sbrk(ptrdiff_t incr)
  8001f8a:	bd80      	pop	{r7, pc}
  8001f8c:	20020000 	.word	0x20020000
  8001f90:	00000400 	.word	0x00000400
- 8001f94:	200006d0 	.word	0x200006d0
- 8001f98:	20002408 	.word	0x20002408
+ 8001f94:	200006b4 	.word	0x200006b4
+ 8001f98:	200023f0 	.word	0x200023f0
 
 08001f9c <SystemInit>:
   *         configuration.
@@ -4136,7 +4138,7 @@ LoopFillZerobss:
  8001fee:	f008 f8b7 	bl	800a160 <__libc_init_array>
 /* Call the application's entry point.*/
   bl  main
- 8001ff2:	f7ff fa9d 	bl	8001530 <main>
+ 8001ff2:	f7ff fd01 	bl	80019f8 <main>
   bx  lr    
  8001ff6:	4770      	bx	lr
   ldr   sp, =_estack    		 /* set stack pointer */
@@ -4150,7 +4152,7 @@ LoopFillZerobss:
   ldr r2, =_sbss
  8002008:	200002c4 	.word	0x200002c4
   ldr r4, =_ebss
- 800200c:	20002408 	.word	0x20002408
+ 800200c:	200023ec 	.word	0x200023ec
 
 08002010 <ADC_IRQHandler>:
  * @retval None       
@@ -4313,7 +4315,7 @@ __weak void HAL_IncTick(void)
  80020d4:	4770      	bx	lr
  80020d6:	bf00      	nop
  80020d8:	20000008 	.word	0x20000008
- 80020dc:	200006d4 	.word	0x200006d4
+ 80020dc:	200006b8 	.word	0x200006b8
 
 080020e0 <HAL_GetTick>:
   * @note This function is declared as __weak to be overwritten in case of other 
@@ -4333,7 +4335,7 @@ __weak uint32_t HAL_GetTick(void)
  80020ec:	f85d 7b04 	ldr.w	r7, [sp], #4
  80020f0:	4770      	bx	lr
  80020f2:	bf00      	nop
- 80020f4:	200006d4 	.word	0x200006d4
+ 80020f4:	200006b8 	.word	0x200006b8
 
 080020f8 <HAL_Delay>:
   *       implementations in user file.
@@ -20805,7 +20807,7 @@ static USBD_StatusTypeDef USBD_SetConfig(USBD_HandleTypeDef *pdev, USBD_SetupReq
  8008196:	46bd      	mov	sp, r7
  8008198:	bd80      	pop	{r7, pc}
  800819a:	bf00      	nop
- 800819c:	200006d8 	.word	0x200006d8
+ 800819c:	200006bc 	.word	0x200006bc
 
 080081a0 <USBD_GetConfig>:
   * @param  pdev: device instance
@@ -21584,7 +21586,7 @@ void MX_USB_DEVICE_Init(void)
  8008572:	d001      	beq.n	8008578 <MX_USB_DEVICE_Init+0x18>
   {
     Error_Handler();
- 8008574:	f7f9 f91e 	bl	80017b4 <Error_Handler>
+ 8008574:	f7f9 fb82 	bl	8001c7c <Error_Handler>
   }
   if (USBD_RegisterClass(&hUsbDeviceFS, &USBD_CDC) != USBD_OK)
  8008578:	490f      	ldr	r1, [pc, #60]	; (80085b8 <MX_USB_DEVICE_Init+0x58>)
@@ -21595,7 +21597,7 @@ void MX_USB_DEVICE_Init(void)
  8008584:	d001      	beq.n	800858a <MX_USB_DEVICE_Init+0x2a>
   {
     Error_Handler();
- 8008586:	f7f9 f915 	bl	80017b4 <Error_Handler>
+ 8008586:	f7f9 fb79 	bl	8001c7c <Error_Handler>
   }
   if (USBD_CDC_RegisterInterface(&hUsbDeviceFS, &USBD_Interface_fops_FS) != USBD_OK)
  800858a:	490c      	ldr	r1, [pc, #48]	; (80085bc <MX_USB_DEVICE_Init+0x5c>)
@@ -21606,7 +21608,7 @@ void MX_USB_DEVICE_Init(void)
  8008596:	d001      	beq.n	800859c <MX_USB_DEVICE_Init+0x3c>
   {
     Error_Handler();
- 8008598:	f7f9 f90c 	bl	80017b4 <Error_Handler>
+ 8008598:	f7f9 fb70 	bl	8001c7c <Error_Handler>
   }
   if (USBD_Start(&hUsbDeviceFS) != USBD_OK)
  800859c:	4805      	ldr	r0, [pc, #20]	; (80085b4 <MX_USB_DEVICE_Init+0x54>)
@@ -21616,7 +21618,7 @@ void MX_USB_DEVICE_Init(void)
  80085a6:	d001      	beq.n	80085ac <MX_USB_DEVICE_Init+0x4c>
   {
     Error_Handler();
- 80085a8:	f7f9 f904 	bl	80017b4 <Error_Handler>
+ 80085a8:	f7f9 fb68 	bl	8001c7c <Error_Handler>
   }
 
   /* USER CODE BEGIN USB_DEVICE_Init_PostTreatment */
@@ -21626,7 +21628,7 @@ void MX_USB_DEVICE_Init(void)
  80085ac:	bf00      	nop
  80085ae:	bd80      	pop	{r7, pc}
  80085b0:	200000ac 	.word	0x200000ac
- 80085b4:	200006dc 	.word	0x200006dc
+ 80085b4:	200006c0 	.word	0x200006c0
  80085b8:	20000018 	.word	0x20000018
  80085bc:	20000098 	.word	0x20000098
 
@@ -21656,9 +21658,9 @@ static int8_t CDC_Init_FS(void)
 }
  80085d8:	4618      	mov	r0, r3
  80085da:	bd80      	pop	{r7, pc}
- 80085dc:	200011b8 	.word	0x200011b8
- 80085e0:	200006dc 	.word	0x200006dc
- 80085e4:	200009b8 	.word	0x200009b8
+ 80085dc:	2000119c 	.word	0x2000119c
+ 80085e0:	200006c0 	.word	0x200006c0
+ 80085e4:	2000099c 	.word	0x2000099c
 
 080085e8 <CDC_DeInit_FS>:
 /**
@@ -21790,7 +21792,7 @@ static int8_t CDC_Receive_FS(uint8_t* Buf, uint32_t *Len)
  80086da:	46bd      	mov	sp, r7
  80086dc:	bd80      	pop	{r7, pc}
  80086de:	bf00      	nop
- 80086e0:	200006dc 	.word	0x200006dc
+ 80086e0:	200006c0 	.word	0x200006c0
 
 080086e4 <CDC_Transmit_FS>:
   * @param  Buf: Buffer of data to be sent
@@ -21842,7 +21844,7 @@ uint8_t CDC_Transmit_FS(uint8_t* Buf, uint16_t Len)
  8008726:	46bd      	mov	sp, r7
  8008728:	bd80      	pop	{r7, pc}
  800872a:	bf00      	nop
- 800872c:	200006dc 	.word	0x200006dc
+ 800872c:	200006c0 	.word	0x200006c0
 
 08008730 <CDC_TransmitCplt_FS>:
   * @param  Buf: Buffer of data to be received
@@ -21973,7 +21975,7 @@ uint8_t * USBD_FS_ProductStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length
  80087ca:	46bd      	mov	sp, r7
  80087cc:	bd80      	pop	{r7, pc}
  80087ce:	bf00      	nop
- 80087d0:	200019b8 	.word	0x200019b8
+ 80087d0:	2000199c 	.word	0x2000199c
  80087d4:	0800d91c 	.word	0x0800d91c
 
 080087d8 <USBD_FS_ManufacturerStrDescriptor>:
@@ -22002,7 +22004,7 @@ uint8_t * USBD_FS_ManufacturerStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *l
  80087f2:	3708      	adds	r7, #8
  80087f4:	46bd      	mov	sp, r7
  80087f6:	bd80      	pop	{r7, pc}
- 80087f8:	200019b8 	.word	0x200019b8
+ 80087f8:	2000199c 	.word	0x2000199c
  80087fc:	0800d934 	.word	0x0800d934
 
 08008800 <USBD_FS_SerialStrDescriptor>:
@@ -22081,7 +22083,7 @@ uint8_t * USBD_FS_ConfigStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *length)
  8008852:	46bd      	mov	sp, r7
  8008854:	bd80      	pop	{r7, pc}
  8008856:	bf00      	nop
- 8008858:	200019b8 	.word	0x200019b8
+ 8008858:	2000199c 	.word	0x2000199c
  800885c:	0800d948 	.word	0x0800d948
 
 08008860 <USBD_FS_InterfaceStrDescriptor>:
@@ -22125,7 +22127,7 @@ uint8_t * USBD_FS_InterfaceStrDescriptor(USBD_SpeedTypeDef speed, uint16_t *leng
  800888e:	46bd      	mov	sp, r7
  8008890:	bd80      	pop	{r7, pc}
  8008892:	bf00      	nop
- 8008894:	200019b8 	.word	0x200019b8
+ 8008894:	2000199c 	.word	0x2000199c
  8008898:	0800d954 	.word	0x0800d954
 
 0800889c <Get_SerialNum>:
@@ -22524,7 +22526,7 @@ void HAL_PCD_ResetCallback(PCD_HandleTypeDef *hpcd)
  8008ad8:	d001      	beq.n	8008ade <HAL_PCD_ResetCallback+0x18>
   {
     Error_Handler();
- 8008ada:	f7f8 fe6b 	bl	80017b4 <Error_Handler>
+ 8008ada:	f7f9 f8cf 	bl	8001c7c <Error_Handler>
   }
     /* Set Speed. */
   USBD_LL_SetSpeed((USBD_HandleTypeDef*)hpcd->pData, speed);
@@ -22795,7 +22797,7 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
  8008c54:	d001      	beq.n	8008c5a <USBD_LL_Init+0x6e>
   {
     Error_Handler( );
- 8008c56:	f7f8 fdad 	bl	80017b4 <Error_Handler>
+ 8008c56:	f7f9 f811 	bl	8001c7c <Error_Handler>
   HAL_PCD_RegisterDataOutStageCallback(&hpcd_USB_OTG_FS, PCD_DataOutStageCallback);
   HAL_PCD_RegisterDataInStageCallback(&hpcd_USB_OTG_FS, PCD_DataInStageCallback);
   HAL_PCD_RegisterIsoOutIncpltCallback(&hpcd_USB_OTG_FS, PCD_ISOOUTIncompleteCallback);
@@ -22823,7 +22825,7 @@ USBD_StatusTypeDef USBD_LL_Init(USBD_HandleTypeDef *pdev)
  8008c7a:	3708      	adds	r7, #8
  8008c7c:	46bd      	mov	sp, r7
  8008c7e:	bd80      	pop	{r7, pc}
- 8008c80:	20001bb8 	.word	0x20001bb8
+ 8008c80:	20001b9c 	.word	0x20001b9c
 
 08008c84 <USBD_LL_Start>:
   * @brief  Starts the low level portion of the device driver.
@@ -23297,7 +23299,7 @@ void *USBD_static_malloc(uint32_t size)
  8008f10:	f85d 7b04 	ldr.w	r7, [sp], #4
  8008f14:	4770      	bx	lr
  8008f16:	bf00      	nop
- 8008f18:	2000209c 	.word	0x2000209c
+ 8008f18:	20002080 	.word	0x20002080
 
 08008f1c <USBD_static_free>:
   * @brief  Dummy memory free
@@ -24765,9 +24767,9 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  8009d00:	f003 b84a 	b.w	800cd98 <_fflush_r>
  8009d04:	bd10      	pop	{r4, pc}
  8009d06:	bf00      	nop
- 8009d08:	200022bc 	.word	0x200022bc
- 8009d0c:	20002324 	.word	0x20002324
- 8009d10:	2000238c 	.word	0x2000238c
+ 8009d08:	200022a0 	.word	0x200022a0
+ 8009d0c:	20002308 	.word	0x20002308
+ 8009d10:	20002370 	.word	0x20002370
 
 08009d14 <global_stdio_init.part.0>:
  8009d14:	b510      	push	{r4, lr}
@@ -24788,21 +24790,21 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  8009d3a:	e8bd 4010 	ldmia.w	sp!, {r4, lr}
  8009d3e:	2112      	movs	r1, #18
  8009d40:	f7ff bf98 	b.w	8009c74 <std>
- 8009d44:	200023f4 	.word	0x200023f4
- 8009d48:	200022bc 	.word	0x200022bc
+ 8009d44:	200023d8 	.word	0x200023d8
+ 8009d48:	200022a0 	.word	0x200022a0
  8009d4c:	08009cbd 	.word	0x08009cbd
 
 08009d50 <__sfp_lock_acquire>:
  8009d50:	4801      	ldr	r0, [pc, #4]	; (8009d58 <__sfp_lock_acquire+0x8>)
  8009d52:	f000 ba29 	b.w	800a1a8 <__retarget_lock_acquire_recursive>
  8009d56:	bf00      	nop
- 8009d58:	200023fd 	.word	0x200023fd
+ 8009d58:	200023e1 	.word	0x200023e1
 
 08009d5c <__sfp_lock_release>:
  8009d5c:	4801      	ldr	r0, [pc, #4]	; (8009d64 <__sfp_lock_release+0x8>)
  8009d5e:	f000 ba24 	b.w	800a1aa <__retarget_lock_release_recursive>
  8009d62:	bf00      	nop
- 8009d64:	200023fd 	.word	0x200023fd
+ 8009d64:	200023e1 	.word	0x200023e1
 
 08009d68 <__sinit>:
  8009d68:	b510      	push	{r4, lr}
@@ -24822,7 +24824,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  8009d8c:	e7f2      	b.n	8009d74 <__sinit+0xc>
  8009d8e:	bf00      	nop
  8009d90:	08009cd5 	.word	0x08009cd5
- 8009d94:	200023f4 	.word	0x200023f4
+ 8009d94:	200023d8 	.word	0x200023d8
 
 08009d98 <_fwalk_sglue>:
  8009d98:	e92d 43f8 	stmdb	sp!, {r3, r4, r5, r6, r7, r8, r9, lr}
@@ -25209,7 +25211,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  800a0de:	b103      	cbz	r3, 800a0e2 <_close_r+0x1a>
  800a0e0:	6023      	str	r3, [r4, #0]
  800a0e2:	bd38      	pop	{r3, r4, r5, pc}
- 800a0e4:	200023f8 	.word	0x200023f8
+ 800a0e4:	200023dc 	.word	0x200023dc
 
 0800a0e8 <_lseek_r>:
  800a0e8:	b538      	push	{r3, r4, r5, lr}
@@ -25227,7 +25229,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  800a102:	b103      	cbz	r3, 800a106 <_lseek_r+0x1e>
  800a104:	6023      	str	r3, [r4, #0]
  800a106:	bd38      	pop	{r3, r4, r5, pc}
- 800a108:	200023f8 	.word	0x200023f8
+ 800a108:	200023dc 	.word	0x200023dc
 
 0800a10c <_read_r>:
  800a10c:	b538      	push	{r3, r4, r5, lr}
@@ -25245,7 +25247,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  800a126:	b103      	cbz	r3, 800a12a <_read_r+0x1e>
  800a128:	6023      	str	r3, [r4, #0]
  800a12a:	bd38      	pop	{r3, r4, r5, pc}
- 800a12c:	200023f8 	.word	0x200023f8
+ 800a12c:	200023dc 	.word	0x200023dc
 
 0800a130 <_write_r>:
  800a130:	b538      	push	{r3, r4, r5, lr}
@@ -25263,7 +25265,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  800a14a:	b103      	cbz	r3, 800a14e <_write_r+0x1e>
  800a14c:	6023      	str	r3, [r4, #0]
  800a14e:	bd38      	pop	{r3, r4, r5, pc}
- 800a150:	200023f8 	.word	0x200023f8
+ 800a150:	200023dc 	.word	0x200023dc
 
 0800a154 <__errno>:
  800a154:	4b01      	ldr	r3, [pc, #4]	; (800a15c <__errno+0x8>)
@@ -26698,7 +26700,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  800af5a:	e7ca      	b.n	800aef2 <_free_r+0x26>
  800af5c:	b003      	add	sp, #12
  800af5e:	bd30      	pop	{r4, r5, pc}
- 800af60:	20002400 	.word	0x20002400
+ 800af60:	200023e4 	.word	0x200023e4
 
 0800af64 <malloc>:
  800af64:	4b02      	ldr	r3, [pc, #8]	; (800af70 <malloc+0xc>)
@@ -26734,7 +26736,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  800afa8:	f04f 34ff 	mov.w	r4, #4294967295
  800afac:	4620      	mov	r0, r4
  800afae:	bd70      	pop	{r4, r5, r6, pc}
- 800afb0:	20002404 	.word	0x20002404
+ 800afb0:	200023e8 	.word	0x200023e8
 
 0800afb4 <_malloc_r>:
  800afb4:	e92d 43f8 	stmdb	sp!, {r3, r4, r5, r6, r7, r8, r9, lr}
@@ -26845,19 +26847,19 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  800b0aa:	605b      	str	r3, [r3, #4]
  800b0ac:	deff      	udf	#255	; 0xff
  800b0ae:	bf00      	nop
- 800b0b0:	20002400 	.word	0x20002400
+ 800b0b0:	200023e4 	.word	0x200023e4
 
 0800b0b4 <__malloc_lock>:
  800b0b4:	4801      	ldr	r0, [pc, #4]	; (800b0bc <__malloc_lock+0x8>)
  800b0b6:	f7ff b877 	b.w	800a1a8 <__retarget_lock_acquire_recursive>
  800b0ba:	bf00      	nop
- 800b0bc:	200023fc 	.word	0x200023fc
+ 800b0bc:	200023e0 	.word	0x200023e0
 
 0800b0c0 <__malloc_unlock>:
  800b0c0:	4801      	ldr	r0, [pc, #4]	; (800b0c8 <__malloc_unlock+0x8>)
  800b0c2:	f7ff b872 	b.w	800a1aa <__retarget_lock_release_recursive>
  800b0c6:	bf00      	nop
- 800b0c8:	200023fc 	.word	0x200023fc
+ 800b0c8:	200023e0 	.word	0x200023e0
 
 0800b0cc <_Balloc>:
  800b0cc:	b570      	push	{r4, r5, r6, lr}
@@ -30014,7 +30016,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  800cf86:	6023      	str	r3, [r4, #0]
  800cf88:	bd38      	pop	{r3, r4, r5, pc}
  800cf8a:	bf00      	nop
- 800cf8c:	200023f8 	.word	0x200023f8
+ 800cf8c:	200023dc 	.word	0x200023dc
 
 0800cf90 <_isatty_r>:
  800cf90:	b538      	push	{r3, r4, r5, lr}
@@ -30030,7 +30032,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  800cfa6:	b103      	cbz	r3, 800cfaa <_isatty_r+0x1a>
  800cfa8:	6023      	str	r3, [r4, #0]
  800cfaa:	bd38      	pop	{r3, r4, r5, pc}
- 800cfac:	200023f8 	.word	0x200023f8
+ 800cfac:	200023dc 	.word	0x200023dc
 
 0800cfb0 <_sbrk_r>:
  800cfb0:	b538      	push	{r3, r4, r5, lr}
@@ -30046,7 +30048,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  800cfc6:	b103      	cbz	r3, 800cfca <_sbrk_r+0x1a>
  800cfc8:	6023      	str	r3, [r4, #0]
  800cfca:	bd38      	pop	{r3, r4, r5, pc}
- 800cfcc:	200023f8 	.word	0x200023f8
+ 800cfcc:	200023dc 	.word	0x200023dc
 
 0800cfd0 <nan>:
  800cfd0:	ed9f 0b01 	vldr	d0, [pc, #4]	; 800cfd8 <nan+0x8>
@@ -30953,7 +30955,7 @@ USBD_StatusTypeDef USBD_Get_USB_Status(HAL_StatusTypeDef hal_status)
  800d852:	6023      	str	r3, [r4, #0]
  800d854:	bd38      	pop	{r3, r4, r5, pc}
  800d856:	bf00      	nop
- 800d858:	200023f8 	.word	0x200023f8
+ 800d858:	200023dc 	.word	0x200023dc
 
 0800d85c <_getpid_r>:
  800d85c:	f7f4 bad8 	b.w	8001e10 <_getpid>
