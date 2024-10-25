@@ -152,6 +152,26 @@ def string_to_dict(json_string):
     except json.JSONDecodeError:
         raise ValueError("Invalid JSON string")
 
+ACK = 0
+NACK = 1
+def ota_check_response(port,cmd):
+
+    while True:
+        data = port.readall()
+        if data == b'': continue
+        resp =[]
+        for i in range(0,len(data)):
+            resp.append(int(data[i]))
+
+        print("Response : ", resp)
+        # check CRC
+        #time.sleep(2)
+        if resp[1] == cmd:
+            if resp[4] == 0:
+                return ACK
+            else:
+                return NACK
+            
 def fetch(byte_array, start_char, end_char):
     # Convert characters to bytes
     start_byte = start_char.encode()  # Convert to byte
@@ -260,7 +280,7 @@ if __name__ == "__main__":
     header = file_sizeArr + file_CrcArr + file_versionArr
     serial_sendPacket(board,PACKET_HEADER,header, len(header))
     # wait for response 
-    
+
     binary = fw[256:]
     sent_size =0
     #send firmware

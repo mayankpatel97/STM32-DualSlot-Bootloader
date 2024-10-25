@@ -1,15 +1,13 @@
 """
 Lock Bin - A console application for generating AES-128 CBC encrypted firmware files with metadata.
 It takes a .bin file, firmware version, firmware ID, and firmware name as input.
-The application then adds 128 bytes of unencrypted metadata, including CRC32 checksum, 
+The application then adds 256 bytes of unencrypted metadata, including CRC32 checksum, 
 firmware details, build date and time, and organization name. 
 The firmware is encrypted using AES-128 CBC encryption.
-The output is a .fw file.
+The output is a .ebin file.
 
 Usage:
-    python lock_bin.py <input_file.bin> <version> <fw_id> <fw_name> <output_file.fw>
-
-This application provides terminal feedback with colored text to indicate progress and success.
+    python lock_bin.py 
 
 Dependencies
     pip install colorama
