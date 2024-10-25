@@ -24,8 +24,15 @@ import serial.tools.list_ports
 START_BYTE = 0xAA
 END_BYTE = 0xBB
 
-PACKET_START = 0x01
-PACKET_HEADER = 0x02
+
+PACKET_HEADER       = 0x01
+PACKET_ERASEMEM     = 0x02
+PACKET_DATACHUNK    = 0x03
+PACKET_END          = 0x04
+PACKET_UPDATEFW     = 0x05
+
+
+FW_DATA_CHUNKSIZE = 200
 
 
 # Initialize colorama
@@ -235,9 +242,11 @@ if __name__ == "__main__":
         print(Fore.RED + "firmware update abort.")
         exit(1)
 
-    serial_sendPacket(board, PACKET_START, bytearray([0x01]), 1)
-    print("star packet sent")
+    print("Erasing Memory..")
+    serial_sendPacket(board, PACKET_ERASEMEM, bytearray([0x01]), 1)
+    # wait for response 
 
+    print("Memory Erased.")
     # send header 
     file_size = metadata["size"]
     file_sizeArr = file_size.to_bytes(4, byteorder='big')
@@ -250,7 +259,28 @@ if __name__ == "__main__":
 
     header = file_sizeArr + file_CrcArr + file_versionArr
     serial_sendPacket(board,PACKET_HEADER,header, len(header))
-
+    # wait for response 
+    
+    binary = fw[256:]
+    sent_size =0
     #send firmware
+    while True:
+        if (sent_size+FW_DATA_CHUNKSIZE) < file_size:
+            data = binary[sent_size:sent_size+FW_DATA_CHUNKSIZE]
+            sent_size +=FW_DATA_CHUNKSIZE
+        else:
+            data = binary[sent_size:]
+            sent_size = file_size
+
+        serial_sendPacket(board,PACKET_DATACHUNK,data, len(data))
+        # wait for response 
+        
+        if sent_size == file_size: break
+
+    serial_sendPacket(board, PACKET_END, bytearray([0x01]), 1)
+    # wait for response 
+
+    serial_sendPacket(board, PACKET_UPDATEFW, bytearray([0x01]), 1)
+    # wait for response 
 
     board.close()
