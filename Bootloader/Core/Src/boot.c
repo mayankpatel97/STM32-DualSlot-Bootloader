@@ -10,8 +10,8 @@
 #include <stdio.h>
 #include <usbd_cdc_if.h>  // Include the USB CDC interface header
 
-#define PACKET_START_MARKER 0x55
-#define PACKET_END_MARKER 0xAA
+#define PACKET_START_MARKER 0xAA
+#define PACKET_END_MARKER 0xBB
 #define MAX_PACKET_SIZE 256
 #define FW_ADDR_SPIFLASH (uint32_t) 0x00000
 
@@ -26,9 +26,9 @@ typedef enum {
 } PacketState;
 
 typedef enum {
-    DFU_START=1,
+	DFU_START = 1,
 	DFU_ERASE_MEM,
-    DFU_HEADER,
+	DFU_HEADER,
     DFU_DATA,
     DFU_END,
     DFU_UPDATE_FW,
@@ -54,9 +54,9 @@ typedef struct
 typedef struct
 {
 	uint32_t total_fw_size;
-	uint16_t fw_crc;
+	uint32_t fw_crc;
 	uint32_t fw_ver;
-}fw_info_t;
+}__attribute__((packed)) fw_info_t;
 
 PacketState packet_state = WAIT_FOR_START;
 uint8_t packet[MAX_PACKET_SIZE];
@@ -69,7 +69,7 @@ uint16_t received_crc = 0;
 dfu_stat_t dfu_stat;
 uint32_t total_fw_len,received_fw_len;
 uint32_t fw_ver;
-uint16_t fw_crc;
+uint32_t fw_crc;
 uint16_t payload_len,packet_len;
 uint32_t fw_index;
 
@@ -170,9 +170,9 @@ static void send_response_packet(dfu_stat_t cmd, RESP_CODE response_code)
 {
 	rep_packet_t resp;
 	resp.start_byte = PACKET_START_MARKER;
-	resp.cmd = DFU_START;
+	resp.cmd = (uint8_t)cmd;
 	resp.len = 0x01;
-	resp.data = response_code;
+	resp.data = (uint8_t)response_code;
 	resp.crc = calculate_crc16((uint8_t *)&resp,resp.len + 2 );
 	resp.end_byte = PACKET_END_MARKER;
 	CDC_Transmit_FS((uint8_t *)&resp,resp.len + 6);
@@ -181,7 +181,7 @@ static void send_response_packet(dfu_stat_t cmd, RESP_CODE response_code)
 void process_packet(void)
 {
     // Verify CRC
-    uint16_t calculated_crc = calculate_crc16(packet + 1, len + 2);  // CMD + LEN + PAYLOAD
+    uint16_t calculated_crc = calculate_crc16(&payload[0], payload_len);  // CMD + LEN + PAYLOAD
     if (received_crc != calculated_crc) {
     	printf("CRC check failed! Received: 0x%04X, Calculated: 0x%04X\n", received_crc, calculated_crc);
     }
@@ -205,7 +205,7 @@ void process_packet(void)
 
 		case DFU_ERASE_MEM:
 			/* erase flash sectors */
-			spiflash_ChipErase();
+			ef_ChipErase();
 			send_response_packet(DFU_ERASE_MEM,DFU_OK);
 			break;
 		case DFU_HEADER:
@@ -225,7 +225,7 @@ void process_packet(void)
 
 			writeDataChunk(payload, payload_len);
 			received_fw_len += payload_len;
-			send_response_packet(DFU_START,received_fw_len > total_fw_len ? DFU_ERROR : DFU_OK);
+			send_response_packet(DFU_DATA,received_fw_len > total_fw_len ? DFU_ERROR : DFU_OK);
 			break;
 		case DFU_END:
 			uint8_t crc_check_ok=0;
@@ -236,14 +236,14 @@ void process_packet(void)
 			}
 
 
-			send_response_packet(DFU_DATA,received_fw_len == total_fw_len && crc_check_ok? DFU_OK:DFU_ERROR);
+			send_response_packet(DFU_END,received_fw_len == total_fw_len && crc_check_ok? DFU_OK:DFU_ERROR);
 			break;
 		case DFU_UPDATE_FW:
 			uint8_t checksumMatched=0;
 			/* copy firmware from flash memory to mcu mem */
 			UpdateFirmware();
 			/* perform checksum here */
-			send_response_packet(DFU_DATA,checksumMatched ? DFU_OK:DFU_ERROR);
+			send_response_packet(DFU_UPDATE_FW,checksumMatched ? DFU_OK:DFU_ERROR);
 			break;
 		case DFU_JUMP_TO_APP:
 			break;
@@ -255,7 +255,7 @@ void process_packet(void)
 
 void writeDataChunk(uint8_t *dat, uint16_t length)
 {
-	spiflash_WriteBuffer(dat, FW_ADDR_SPIFLASH + fw_index, length);
+	//ef_WriteBuffer(dat, FW_ADDR_SPIFLASH + fw_index, length);
 	fw_index += length;
 }
 

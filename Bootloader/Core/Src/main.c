@@ -69,6 +69,7 @@ char dbg_buff[DBG_BUFF_LEN];
 uint8_t dbg_buff_idx;
 PUTCHAR_PROTOTYPE
 {
+	/*
 	if(dbg_buff_idx<DBG_BUFF_LEN)
 	{
 		dbg_buff[dbg_buff_idx++] = ch;
@@ -79,6 +80,7 @@ PUTCHAR_PROTOTYPE
 	  //CDC_Transmit_FS((uint8_t *)&dbg_buff[0], dbg_buff_idx);
 	  dbg_buff_idx=0;
 	}
+	*/
 	return ch;
 }
 /* USER CODE END 0 */

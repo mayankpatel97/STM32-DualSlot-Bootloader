@@ -24,15 +24,14 @@ import serial.tools.list_ports
 START_BYTE = 0xAA
 END_BYTE = 0xBB
 
-
-PACKET_HEADER       = 0x01
+PACKET_START        = 0x01
 PACKET_ERASEMEM     = 0x02
-PACKET_DATACHUNK    = 0x03
-PACKET_END          = 0x04
-PACKET_UPDATEFW     = 0x05
+PACKET_HEADER       = 0x03
+PACKET_DATACHUNK    = 0x04
+PACKET_END          = 0x05
+PACKET_UPDATEFW     = 0x06
 
-
-FW_DATA_CHUNKSIZE = 200
+FW_DATA_CHUNKSIZE = 224
 
 
 # Initialize colorama
@@ -167,9 +166,11 @@ def ota_check_response(port,cmd):
         # check CRC
         #time.sleep(2)
         if resp[1] == cmd:
-            if resp[4] == 0:
+            if resp[3] == 0:
+                print(Fore.GREEN + f"Ack recvd for cmd {cmd}.")
                 return ACK
             else:
+                print(Fore.RED + f"Nack recvd for cmd {cmd}.")
                 return NACK
             
 def fetch(byte_array, start_char, end_char):
@@ -255,32 +256,47 @@ if __name__ == "__main__":
               build date : {metadata["build_date"]}
           ''')
 
-    decision = input("Press Y to update and N to abort. ")
+
+    while True:
+        decision = input("Press Y to update and N to abort. ")
 
 
-    if decision == "n" or decision == "N":
-        print(Fore.RED + "firmware update abort.")
-        exit(1)
+        if decision == "n" or decision == "N":
+            print(Fore.RED + "firmware update abort.")
+            exit(1)
+        
+        if decision == "Y" or decision == "y":
+            break
 
-    print("Erasing Memory..")
+    # send FW update start packet
+    print("Sending start packet")
+    serial_sendPacket(board, PACKET_START, bytearray([0x01]), 1)
+    if ota_check_response(board,PACKET_START) == NACK: exit(1)
+    
+
+    print("Sending memory erase packet")
     serial_sendPacket(board, PACKET_ERASEMEM, bytearray([0x01]), 1)
+    if ota_check_response(board,PACKET_ERASEMEM) == NACK: exit(1)
     # wait for response 
 
     print("Memory Erased.")
+
     # send header 
     file_size = metadata["size"]
-    file_sizeArr = file_size.to_bytes(4, byteorder='big')
+    file_sizeArr = file_size.to_bytes(4, byteorder='little')
 
     file_crc32 = metadata["crc32"]
-    file_CrcArr = file_crc32.to_bytes(4, byteorder='big')
+    file_CrcArr = file_crc32.to_bytes(4, byteorder='little')
 
     file_version = metadata["version"]
-    file_versionArr = file_version.to_bytes(4, byteorder='big')
+    file_versionArr = file_version.to_bytes(4, byteorder='little')
 
     header = file_sizeArr + file_CrcArr + file_versionArr
+    print(f"Sending header packet-> size: {file_size}, crc32: {file_crc32}, version: {file_version}")
     serial_sendPacket(board,PACKET_HEADER,header, len(header))
     # wait for response 
-
+    if ota_check_response(board,PACKET_HEADER) == NACK: exit(1)
+    print("Sending data packets")
     binary = fw[256:]
     sent_size =0
     #send firmware
@@ -293,14 +309,19 @@ if __name__ == "__main__":
             sent_size = file_size
 
         serial_sendPacket(board,PACKET_DATACHUNK,data, len(data))
+        if ota_check_response(board,PACKET_DATACHUNK) == NACK: exit(1)
         # wait for response 
         
         if sent_size == file_size: break
 
+    print("Sending end packet")
     serial_sendPacket(board, PACKET_END, bytearray([0x01]), 1)
     # wait for response 
+    if ota_check_response(board,PACKET_END) == NACK: exit(1)
 
+    print("Sending update packet")
     serial_sendPacket(board, PACKET_UPDATEFW, bytearray([0x01]), 1)
     # wait for response 
+    if ota_check_response(board,PACKET_UPDATEFW) == NACK: exit(1)
 
     board.close()
