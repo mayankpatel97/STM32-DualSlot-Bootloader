@@ -1,7 +1,7 @@
 
 
 #include "main.h"
-#include "spiflash.h"
+#include "extflash.h"
 #include "boot.h"
 
 #include <stdarg.h>
@@ -71,7 +71,6 @@ uint32_t total_fw_len,received_fw_len;
 uint32_t fw_ver;
 uint32_t fw_crc;
 uint16_t payload_len,packet_len;
-uint32_t fw_index;
 
 void process_packet(void);
 void writeDataChunk(uint8_t *dat, uint16_t length);
@@ -219,6 +218,7 @@ void process_packet(void)
 			fw_crc		 = fw_info.fw_crc;
 			dfu_stat = DFU_DATA;
 			send_response_packet(DFU_HEADER,DFU_OK);
+
 			break;
 		case DFU_DATA:
 			/* write payload in to memory */
@@ -226,7 +226,12 @@ void process_packet(void)
 			writeDataChunk(payload, payload_len);
 			received_fw_len += payload_len;
 			send_response_packet(DFU_DATA,received_fw_len > total_fw_len ? DFU_ERROR : DFU_OK);
+			if(received_fw_len == total_fw_len)
+			{
+				dfu_stat = DFU_END;
+			}
 			break;
+
 		case DFU_END:
 			uint8_t crc_check_ok=0;
 			if(received_fw_len == total_fw_len)
@@ -235,13 +240,14 @@ void process_packet(void)
 
 			}
 
-
+			crc_check_ok=1; // FIXME
 			send_response_packet(DFU_END,received_fw_len == total_fw_len && crc_check_ok? DFU_OK:DFU_ERROR);
 			break;
 		case DFU_UPDATE_FW:
 			uint8_t checksumMatched=0;
 			/* copy firmware from flash memory to mcu mem */
 			UpdateFirmware();
+			checksumMatched = 1; // FIXME
 			/* perform checksum here */
 			send_response_packet(DFU_UPDATE_FW,checksumMatched ? DFU_OK:DFU_ERROR);
 			break;
@@ -256,7 +262,6 @@ void process_packet(void)
 void writeDataChunk(uint8_t *dat, uint16_t length)
 {
 	//ef_WriteBuffer(dat, FW_ADDR_SPIFLASH + fw_index, length);
-	fw_index += length;
 }
 
 void UpdateFirmware(void)

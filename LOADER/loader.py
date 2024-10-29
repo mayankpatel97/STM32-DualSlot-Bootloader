@@ -16,13 +16,11 @@ import serial
 from colorama import init, Fore, Back, Style
 import time
 import json
-
 import serial.tools
 import serial.tools.list_ports
 
-
-START_BYTE = 0xAA
-END_BYTE = 0xBB
+START_BYTE          = 0xAA
+END_BYTE            = 0xBB
 
 PACKET_START        = 0x01
 PACKET_ERASEMEM     = 0x02
@@ -31,7 +29,7 @@ PACKET_DATACHUNK    = 0x04
 PACKET_END          = 0x05
 PACKET_UPDATEFW     = 0x06
 
-FW_DATA_CHUNKSIZE = 224
+FW_DATA_CHUNKSIZE   = 224
 
 
 # Initialize colorama
@@ -45,7 +43,6 @@ def list_com_ports():
     else:
         for port in ports:
             print(Fore.GREEN + f"{port.device} - {port.description}")
-
     return ports
 
 def write_byte_array(port, byte_array):
@@ -57,7 +54,6 @@ def write_byte_array(port, byte_array):
             # Send the byte array
             ser.write(byte_array)
             print(f"Sent byte array: {byte_array}")
-
             # Optional: wait to ensure the data is sent
             time.sleep(1)
 
@@ -78,7 +74,6 @@ def serial_connect(port, baudrate):
 def calculate_crc16(data, length):
     crc = 0xFFFF
     poly = 0x2024
-
     for i in range(length):
         crc ^= (data[i] << 8)
         for j in range(8):
@@ -86,7 +81,6 @@ def calculate_crc16(data, length):
                 crc = (crc << 1) ^ poly
             else:
                 crc <<= 1
-
     return crc & 0xFFFF  # Ensure it stays within 16 bits
 
 
@@ -96,7 +90,7 @@ def serial_sendPacket(port,cmd,payload, length):
     crc16_byteArray = crc16.to_bytes(2, byteorder='big')
     packet = head + payload + crc16_byteArray + bytearray([END_BYTE])
     port.write(packet)
-    print(f"sent({cmd}) : {packet}")
+    #print(f"sent({cmd}) : {packet}")
 
 
 def firmware_file_valid(file_path):
@@ -104,7 +98,6 @@ def firmware_file_valid(file_path):
     if not os.path.isfile(file_path):
         print(f"File '{file_path}' does not exist.")
         return False
-    
     # Check the file extension
     file_extension = os.path.splitext(file_path)[1]  # Get the extension
     if file_extension == '.ebin':
@@ -118,7 +111,6 @@ def extract_string_between(input_string, start_char, end_char):
     # Find the positions of the start and end characters
     start_index = input_string.find(start_char)
     end_index = input_string.find(end_char, start_index + 1)
-    
     # Check if both characters are found
     if start_index != -1 and end_index != -1:
         # Extract the string between the two characters
@@ -130,7 +122,6 @@ def extract_string_between(input_string, start_char, end_char):
 def calculate_crc32(data):
     """Calculate CRC32 checksum of the given data."""
     crc = 0xFFFFFFFF  # Initialize CRC to all bits set to 1
-
     for byte in data:
         crc ^= byte  # XOR byte into the least-significant byte of crc
         for _ in range(8):  # Process each bit
@@ -139,9 +130,9 @@ def calculate_crc32(data):
                 crc = (crc >> 1) ^ 0xEDB88320  # Polynomial used in CRC32
             else:
                 crc >>= 1  # Just shift right
-
     # Finalize the CRC value
     return crc ^ 0xFFFFFFFF  # Invert all bits to get the final CRC32 value
+
 
 def string_to_dict(json_string):
     """Convert a JSON string to a dictionary."""
@@ -154,20 +145,18 @@ def string_to_dict(json_string):
 ACK = 0
 NACK = 1
 def ota_check_response(port,cmd):
-
     while True:
         data = port.readall()
         if data == b'': continue
         resp =[]
         for i in range(0,len(data)):
             resp.append(int(data[i]))
-
-        print("Response : ", resp)
+        #print("Response : ", resp)
         # check CRC
         #time.sleep(2)
         if resp[1] == cmd:
             if resp[3] == 0:
-                print(Fore.GREEN + f"Ack recvd for cmd {cmd}.")
+                #print(Fore.GREEN + f"Ack recvd for cmd {cmd}.")
                 return ACK
             else:
                 print(Fore.RED + f"Nack recvd for cmd {cmd}.")
@@ -177,41 +166,37 @@ def fetch(byte_array, start_char, end_char):
     # Convert characters to bytes
     start_byte = start_char.encode()  # Convert to byte
     end_byte = end_char.encode()  # Convert to byte
-
     # Find the starting index
     start_index = byte_array.find(start_byte)  # Find the index of the starting character
     # Find the ending index
     end_index = byte_array.find(end_byte, start_index + 1)  # Find the index of the ending character
-
     if start_index != -1 and end_index != -1:  # Check if both characters are found
         return byte_array[start_index:end_index + 1]  # Return the slice including both characters
     else:
         return None  # Return None if either character is not found
     
 if __name__ == "__main__":
+
+
+    from tqdm import tqdm
+
+            
     print(Fore.GREEN + "Running host app.")
     serial_port_list = list_com_ports()
-    
     if len(serial_port_list) == 0 : exit(1)
     # Specify the serial port and baud rate
-    
     print("Select COM Port from list below")
     for i in range(0,len(serial_port_list)):
         print(f"{i}: {serial_port_list[i]}")
-    
     print("")
     index = input("Enter Index: ")
-
     print(f"SELECTED: {serial_port_list[int(index)]}")
-
     port = serial_port_list[int(index)].device
 #    serial_port = "COM19"  # Change this to your serial port (e.g., "/dev/ttyUSB0" for Linux)
     baud_rate = 115200
     # Send the packets
-    
     timeout = 1  # Set a timeout for reading (in seconds)
     board = serial_connect(port,baud_rate)
-    
     input_path_string = input("Drag and drop file to be loaded ..\n")
     if "'" in input_path_string:
         file_path = extract_string_between(input_path_string,"'","'")
@@ -226,16 +211,12 @@ if __name__ == "__main__":
     
     #remove below line 
     #file_path = 'D:/software projects/STM32-SPIFLashLoader/HOST_APP/output.ebin'
-    
     print("Updating firmware...")
     fw_file = open(file_path,'rb')
     fw = fw_file.read()
-
     file_crc_stored = int.from_bytes(fw[0:4], byteorder='big', signed=False)
     file_crc_calculated = calculate_crc32(fw[4:])
-
     print(f'crc calculated: {file_crc_calculated}, stored: {file_crc_stored}')
-
     if file_crc_stored != file_crc_calculated:
         print(Fore.RED + "corrupt ebin file.")
         exit(1)
@@ -246,7 +227,6 @@ if __name__ == "__main__":
     metadata_byteArr = fetch(metadata_chunk,'{','}')
     metadata = json.loads(metadata_byteArr)
     print(metadata)
-
     print(Fore.BLUE + f'''
               fw         : {metadata["fw_name"]}
               owned by   : {metadata["owner"]}
@@ -256,15 +236,12 @@ if __name__ == "__main__":
               build date : {metadata["build_date"]}
           ''')
 
-
     while True:
         decision = input("Press Y to update and N to abort. ")
-
-
         if decision == "n" or decision == "N":
             print(Fore.RED + "firmware update abort.")
             exit(1)
-        
+
         if decision == "Y" or decision == "y":
             break
 
@@ -273,7 +250,6 @@ if __name__ == "__main__":
     serial_sendPacket(board, PACKET_START, bytearray([0x01]), 1)
     if ota_check_response(board,PACKET_START) == NACK: exit(1)
     
-
     print("Sending memory erase packet")
     serial_sendPacket(board, PACKET_ERASEMEM, bytearray([0x01]), 1)
     if ota_check_response(board,PACKET_ERASEMEM) == NACK: exit(1)
@@ -283,6 +259,7 @@ if __name__ == "__main__":
 
     # send header 
     file_size = metadata["size"]
+    file_size = len(fw) - 256 # encrypted file is larger than the original file
     file_sizeArr = file_size.to_bytes(4, byteorder='little')
 
     file_crc32 = metadata["crc32"]
@@ -290,7 +267,7 @@ if __name__ == "__main__":
 
     file_version = metadata["version"]
     file_versionArr = file_version.to_bytes(4, byteorder='little')
-
+    
     header = file_sizeArr + file_CrcArr + file_versionArr
     print(f"Sending header packet-> size: {file_size}, crc32: {file_crc32}, version: {file_version}")
     serial_sendPacket(board,PACKET_HEADER,header, len(header))
@@ -299,6 +276,9 @@ if __name__ == "__main__":
     print("Sending data packets")
     binary = fw[256:]
     sent_size =0
+    
+    # Initialize tqdm progress bar
+    progress_bar = tqdm(total=file_size, desc="Uploading", unit="B", unit_scale=True)
     #send firmware
     while True:
         if (sent_size+FW_DATA_CHUNKSIZE) < file_size:
@@ -309,19 +289,30 @@ if __name__ == "__main__":
             sent_size = file_size
 
         serial_sendPacket(board,PACKET_DATACHUNK,data, len(data))
-        if ota_check_response(board,PACKET_DATACHUNK) == NACK: exit(1)
         # wait for response 
-        
-        if sent_size == file_size: break
+        time.sleep(0.05)
+        #if ota_check_response(board,PACKET_DATACHUNK) == NACK: exit(1)
+        # Update progress bar
+        progress_bar.update(len(data))
+        if sent_size >= file_size: break
 
+        #update progress bar here
+
+    
+    print("")
+    print(f"fw size: {file_size}, Sent size: {sent_size}")
+    time.sleep(1)
     print("Sending end packet")
     serial_sendPacket(board, PACKET_END, bytearray([0x01]), 1)
     # wait for response 
     if ota_check_response(board,PACKET_END) == NACK: exit(1)
 
+    time.sleep(0.5)
     print("Sending update packet")
     serial_sendPacket(board, PACKET_UPDATEFW, bytearray([0x01]), 1)
     # wait for response 
     if ota_check_response(board,PACKET_UPDATEFW) == NACK: exit(1)
 
     board.close()
+
+    print(Fore.GREEN + "Firmware update successful.")

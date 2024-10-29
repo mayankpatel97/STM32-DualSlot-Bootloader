@@ -59,7 +59,8 @@ def encrypt_firmware(data, key):
     iv = get_random_bytes(AES.block_size)
     cipher = AES.new(key, AES.MODE_CBC, iv)
     encrypted_data = cipher.encrypt(pad(data))
-    return iv + encrypted_data  # Prepend IV for decryption
+    #return iv + encrypted_data  # Prepend IV for decryption
+    return encrypted_data  # Prepend IV for decryption
 
 def extract_string_between(input_string, start_char, end_char):
     # Find the positions of the start and end characters
