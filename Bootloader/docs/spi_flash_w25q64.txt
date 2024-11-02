@@ -1,0 +1,57 @@
+# W25Q64 Memory Map
+
+## Basic Information
+- Total Capacity: 64 Mbit / 8 MByte
+- Page Size: 256 bytes
+- Sector Size: 4 KB (4,096 bytes)
+- Block Size: 64 KB (65,536 bytes)
+
+## Memory Organization
+- Number of Pages: 32,768 pages
+- Number of Sectors: 2,048 sectors
+- Number of Blocks: 128 blocks
+
+## Memory Map Layout
+
+# Address Range
+- Start Address: 0x000000
+- End Address: 0x7FFFFF
+
+# Block Level Breakdown
+
+Block 0   : 0x000000 - 0x00FFFF (64KB)
+Block 1   : 0x010000 - 0x01FFFF (64KB)
+Block 2   : 0x020000 - 0x02FFFF (64KB)
+...
+Block 127 : 0x7F0000 - 0x7FFFFF (64KB)
+
+
+# Sector Level Breakdown (within each block)
+
+Sector 0  : 0x000000 - 0x000FFF (4KB)
+Sector 1  : 0x001000 - 0x001FFF (4KB)
+Sector 2  : 0x002000 - 0x002FFF (4KB)
+...
+Sector 15 : 0x00F000 - 0x00FFFF (4KB)
+
+
+# Page Level Breakdown (within each sector)
+
+Page 0    : 0x000000 - 0x0000FF (256B)
+Page 1    : 0x000100 - 0x0001FF (256B)
+Page 2    : 0x000200 - 0x0002FF (256B)
+...
+Page 15   : 0x000F00 - 0x000FFF (256B)
+
+
+## Security Features
+- Status Register Protected Blocks
+- Individual Sector/Block Lock Protection
+- OTP (One-Time Programmable) Security Register: 256B x 3
+
+## Additional Notes
+1. Each sector can be individually erased
+2. Each block can be individually erased
+3. Pages are the smallest programmable unit
+4. Sequential read supports continuous read across page boundaries
+5. Security registers are located outside main memory array

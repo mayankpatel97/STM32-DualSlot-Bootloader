@@ -28,9 +28,12 @@ PACKET_HEADER       = 0x03
 PACKET_DATACHUNK    = 0x04
 PACKET_END          = 0x05
 PACKET_UPDATEFW     = 0x06
+PACKET_READSLOT0    = 0x07
+PACKET_READSLOT1    = 0x08
 
 FW_DATA_CHUNKSIZE   = 224
 
+MENU = ["Exit", "Update Firmware", "Read Slot 0", "Read Slot 1"]
 
 # Initialize colorama
 init(autoreset=True)
@@ -174,29 +177,9 @@ def fetch(byte_array, start_char, end_char):
         return byte_array[start_index:end_index + 1]  # Return the slice including both characters
     else:
         return None  # Return None if either character is not found
-    
-if __name__ == "__main__":
 
 
-    from tqdm import tqdm
-
-            
-    print(Fore.GREEN + "Running host app.")
-    serial_port_list = list_com_ports()
-    if len(serial_port_list) == 0 : exit(1)
-    # Specify the serial port and baud rate
-    print("Select COM Port from list below")
-    for i in range(0,len(serial_port_list)):
-        print(f"{i}: {serial_port_list[i]}")
-    print("")
-    index = input("Enter Index: ")
-    print(f"SELECTED: {serial_port_list[int(index)]}")
-    port = serial_port_list[int(index)].device
-#    serial_port = "COM19"  # Change this to your serial port (e.g., "/dev/ttyUSB0" for Linux)
-    baud_rate = 115200
-    # Send the packets
-    timeout = 1  # Set a timeout for reading (in seconds)
-    board = serial_connect(port,baud_rate)
+def update_fw(port):
     input_path_string = input("Drag and drop file to be loaded ..\n")
     if "'" in input_path_string:
         file_path = extract_string_between(input_path_string,"'","'")
@@ -290,15 +273,14 @@ if __name__ == "__main__":
 
         serial_sendPacket(board,PACKET_DATACHUNK,data, len(data))
         # wait for response 
-        time.sleep(0.05)
+        time.sleep(0.25)
         #if ota_check_response(board,PACKET_DATACHUNK) == NACK: exit(1)
         # Update progress bar
         progress_bar.update(len(data))
         if sent_size >= file_size: break
 
         #update progress bar here
-
-    
+    progress_bar.close()
     print("")
     print(f"fw size: {file_size}, Sent size: {sent_size}")
     time.sleep(1)
@@ -307,12 +289,70 @@ if __name__ == "__main__":
     # wait for response 
     if ota_check_response(board,PACKET_END) == NACK: exit(1)
 
-    time.sleep(0.5)
+    time.sleep(1)
     print("Sending update packet")
     serial_sendPacket(board, PACKET_UPDATEFW, bytearray([0x01]), 1)
     # wait for response 
     if ota_check_response(board,PACKET_UPDATEFW) == NACK: exit(1)
 
-    board.close()
-
     print(Fore.GREEN + "Firmware update successful.")
+
+
+
+if __name__ == "__main__":
+
+    from tqdm import tqdm
+        
+    print(Fore.GREEN + "Running host app.")
+    serial_port_list = list_com_ports()
+    if len(serial_port_list) == 0 : exit(1)
+    # Specify the serial port and baud rate
+    print("Select COM Port from list below")
+    for i in range(0,len(serial_port_list)):
+        print(f"{i}: {serial_port_list[i]}")
+    print("")
+    index = input("Enter Index: ")
+    print(f"SELECTED: {serial_port_list[int(index)]}")
+    port = serial_port_list[int(index)].device
+#    serial_port = "COM19"  # Change this to your serial port (e.g., "/dev/ttyUSB0" for Linux)
+    baud_rate = 115200
+    # Send the packets
+    timeout = 1  # Set a timeout for reading (in seconds)
+    board = serial_connect(port,baud_rate)
+
+    while True:
+        print("")
+        for i in range(0, len(MENU)):
+            print(f"{i}: {MENU[i]}")
+
+        selected_idx = input("\n> ")
+        if      int(selected_idx) == 0:
+            break
+        elif      int(selected_idx) == 1:
+            update_fw(board)
+        elif    int(selected_idx) == 2:
+            # read slot 1
+            serial_sendPacket(board, PACKET_READSLOT0, bytearray([0x01]), 1)
+            # receive response in this format
+            # FF FF FF FF FF FF FF FF FF FF FF FF FF FF
+            #
+            #
+
+            print(f"\n0F 0E 0D 0C 0B 0A 09 08 07 06 05 04 03 02 01 00")
+            print(f"\n-----------------------------------------------")
+            start = time.time()
+            while True: 
+                bytes = board.readall()
+                print(bytes)
+
+                curr = time.time()
+                if curr > (start + 5): break
+
+
+
+
+        else: break
+
+
+
+    board.close()

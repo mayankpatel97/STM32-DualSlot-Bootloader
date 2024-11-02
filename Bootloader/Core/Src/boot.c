@@ -1,7 +1,6 @@
 
 
 #include "main.h"
-#include "extflash.h"
 #include "boot.h"
 
 #include <stdarg.h>
@@ -32,6 +31,8 @@ typedef enum {
     DFU_DATA,
     DFU_END,
     DFU_UPDATE_FW,
+	DFU_READ_SLOT0,
+	DFU_READ_SLOT1,
     DFU_JUMP_TO_APP
 } dfu_stat_t;
 
@@ -67,7 +68,7 @@ uint8_t cmd = 0;
 uint8_t len = 0;
 uint16_t received_crc = 0;
 dfu_stat_t dfu_stat;
-uint32_t total_fw_len,received_fw_len;
+uint32_t total_fw_len,received_fw_len,read_index;
 uint32_t fw_ver;
 uint32_t fw_crc;
 uint16_t payload_len,packet_len;
@@ -75,6 +76,7 @@ uint16_t payload_len,packet_len;
 void process_packet(void);
 void writeDataChunk(uint8_t *dat, uint16_t length);
 void UpdateFirmware(void);
+void readSlot(uint8_t slotnum);
 
 uint16_t calculate_crc16(uint8_t *data, uint16_t length)
 {
@@ -204,7 +206,9 @@ void process_packet(void)
 
 		case DFU_ERASE_MEM:
 			/* erase flash sectors */
-			ef_ChipErase();
+//			ef_readid();
+//			ef_WriteEnable();
+//			ef_ChipErase();
 			send_response_packet(DFU_ERASE_MEM,DFU_OK);
 			break;
 		case DFU_HEADER:
@@ -222,7 +226,6 @@ void process_packet(void)
 			break;
 		case DFU_DATA:
 			/* write payload in to memory */
-
 			writeDataChunk(payload, payload_len);
 			received_fw_len += payload_len;
 			send_response_packet(DFU_DATA,received_fw_len > total_fw_len ? DFU_ERROR : DFU_OK);
@@ -237,10 +240,9 @@ void process_packet(void)
 			if(received_fw_len == total_fw_len)
 			{
 				/* perform a crc check here */
-
+				crc_check_ok=1; // FIXME
 			}
 
-			crc_check_ok=1; // FIXME
 			send_response_packet(DFU_END,received_fw_len == total_fw_len && crc_check_ok? DFU_OK:DFU_ERROR);
 			break;
 		case DFU_UPDATE_FW:
@@ -251,6 +253,11 @@ void process_packet(void)
 			/* perform checksum here */
 			send_response_packet(DFU_UPDATE_FW,checksumMatched ? DFU_OK:DFU_ERROR);
 			break;
+
+		case DFU_READ_SLOT0:
+			readSlot(0);
+			break;
+
 		case DFU_JUMP_TO_APP:
 			break;
 
@@ -261,9 +268,20 @@ void process_packet(void)
 
 void writeDataChunk(uint8_t *dat, uint16_t length)
 {
-	//ef_WriteBuffer(dat, FW_ADDR_SPIFLASH + fw_index, length);
+	//ef_WriteBuffer(dat, FW_ADDR_SPIFLASH + received_fw_len, length);
 }
 
+
+void readSlot(uint8_t slotnum)
+{
+	static uint8_t readbuf[16];
+	for(int x=0; x < 32; x++)
+	{
+		memset(readbuf,0, sizeof(readbuf));
+		//ef_ReadBuffer(readbuf, FW_ADDR_SPIFLASH + read_index, sizeof(readbuf));
+		CDC_Transmit_FS((uint8_t *)&readbuf,sizeof(readbuf));
+	}
+}
 void UpdateFirmware(void)
 {
 

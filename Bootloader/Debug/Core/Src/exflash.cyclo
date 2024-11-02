@@ -1,0 +1,11 @@
+../Core/Src/exflash.c:55:13:ef_CS_Low	1
+../Core/Src/exflash.c:59:13:ef_CS_High	1
+../Core/Src/exflash.c:63:16:ef_WaitForReady	3
+../Core/Src/exflash.c:83:19:ef_Init	1
+../Core/Src/exflash.c:97:10:ef_ReadID	1
+../Core/Src/exflash.c:111:13:ef_WriteEnable	1
+../Core/Src/exflash.c:120:19:ef_ReadData	1
+../Core/Src/exflash.c:137:19:ef_WritePage	3
+../Core/Src/exflash.c:158:19:ef_EraseSector	2
+../Core/Src/exflash.c:176:19:ef_EraseBlock	2
+../Core/Src/exflash.c:194:19:ef_EraseChip	2

@@ -69,7 +69,7 @@ char dbg_buff[DBG_BUFF_LEN];
 uint8_t dbg_buff_idx;
 PUTCHAR_PROTOTYPE
 {
-	/*
+
 	if(dbg_buff_idx<DBG_BUFF_LEN)
 	{
 		dbg_buff[dbg_buff_idx++] = ch;
@@ -77,10 +77,10 @@ PUTCHAR_PROTOTYPE
 
 	if(ch == '\n' || ch == '\r')
 	{
-	  //CDC_Transmit_FS((uint8_t *)&dbg_buff[0], dbg_buff_idx);
+	  CDC_Transmit_FS((uint8_t *)&dbg_buff[0], dbg_buff_idx);
 	  dbg_buff_idx=0;
 	}
-	*/
+
 	return ch;
 }
 /* USER CODE END 0 */
@@ -116,7 +116,55 @@ int main(void)
   MX_SPI1_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
+  // Initialize the flash memory
+  if (ef_Init() != HAL_OK) {
+      printf("Flash memory initialization failed.\n");
+      return;
+  }
+  printf("Flash memory initialized successfully.\n");
 
+  // Read the flash memory ID
+  uint16_t flashID = ef_ReadID();
+  printf("Flash Memory ID: 0x%X\n", flashID);
+
+  // Define an address to perform read/write operations
+  uint32_t address = 0x000000;  // Starting address
+  uint8_t dataToWrite[256];     // Data buffer to write (max page size)
+  uint8_t dataRead[256];        // Buffer to store the read data
+
+  // Fill dataToWrite with example values
+  for (int i = 0; i < 256; i++) {
+      dataToWrite[i] = i;
+  }
+
+  // Erase a sector before writing
+  if (ef_EraseSector(address) != HAL_OK) {
+      printf("Failed to erase sector at address: 0x%06X\n", address);
+      return;
+  }
+  printf("Sector erased at address: 0x%06X\n", address);
+
+  // Write a page (up to 256 bytes) to the flash memory
+  if (ef_WritePage(address, dataToWrite, 256) != HAL_OK) {
+      printf("Failed to write page at address: 0x%06X\n", address);
+      return;
+  }
+  printf("Page written successfully at address: 0x%06X\n", address);
+
+  // Read the page back from the flash memory
+  if (ef_ReadData(address, dataRead, 256) != HAL_OK) {
+      printf("Failed to read data from address: 0x%06X\n", address);
+      return;
+  }
+
+  // Verify that the read data matches the written data
+  for (int i = 0; i < 256; i++) {
+      if (dataRead[i] != dataToWrite[i]) {
+          printf("Data mismatch at byte %d\n", i);
+          return;
+      }
+  }
+  printf("Data verified successfully!\n");
   /* USER CODE END 2 */
 
   /* Infinite loop */
