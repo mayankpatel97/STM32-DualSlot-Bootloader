@@ -1,7 +1,8 @@
-../Core/Src/boot.c:81:10:calculate_crc16	4
-../Core/Src/boot.c:100:6:USB_VCP_ReceiveCallback	13
-../Core/Src/boot.c:170:13:send_response_packet	1
-../Core/Src/boot.c:182:6:process_packet	14
-../Core/Src/boot.c:269:6:writeDataChunk	1
-../Core/Src/boot.c:275:6:readSlot	2
-../Core/Src/boot.c:285:6:UpdateFirmware	1
+../Core/Src/boot.c:80:10:calculate_crc16	4
+../Core/Src/boot.c:99:6:uart_int	13
+../Core/Src/boot.c:169:9:is_new_packet	1
+../Core/Src/boot.c:174:13:send_response_packet	1
+../Core/Src/boot.c:186:6:process_packet	14
+../Core/Src/boot.c:274:6:writeDataChunk	1
+../Core/Src/boot.c:280:6:readSlot	2
+../Core/Src/boot.c:290:6:UpdateFirmware	1

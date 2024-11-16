@@ -7,7 +7,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <usbd_cdc_if.h>  // Include the USB CDC interface header
 
 #define PACKET_START_MARKER 0xAA
 #define PACKET_END_MARKER 0xBB
@@ -72,7 +71,7 @@ uint32_t total_fw_len,received_fw_len,read_index;
 uint32_t fw_ver;
 uint32_t fw_crc;
 uint16_t payload_len,packet_len;
-
+uint8_t new_packet_captured;
 void process_packet(void);
 void writeDataChunk(uint8_t *dat, uint16_t length);
 void UpdateFirmware(void);
@@ -97,7 +96,7 @@ uint16_t calculate_crc16(uint8_t *data, uint16_t length)
 }
 
 
-void USB_VCP_ReceiveCallback(uint8_t* Buf, uint32_t *Len)
+void uart_int(uint8_t* Buf, uint32_t *Len)
 {
     for (uint32_t i = 0; i < *Len; i++) {
         uint8_t byte = Buf[i];
@@ -158,7 +157,7 @@ void USB_VCP_ReceiveCallback(uint8_t* Buf, uint32_t *Len)
 
                     payload_len = payload_index;
                     packet_len = packet_index;
-                    process_packet();  // Validate and process the packet
+                    new_packet_captured = 1;
                 }
                 packet_state = WAIT_FOR_START;
                 break;
@@ -166,6 +165,11 @@ void USB_VCP_ReceiveCallback(uint8_t* Buf, uint32_t *Len)
     }
 }
 
+
+uint8_t is_new_packet(void)
+{
+	return new_packet_captured;
+}
 
 static void send_response_packet(dfu_stat_t cmd, RESP_CODE response_code)
 {
@@ -176,11 +180,12 @@ static void send_response_packet(dfu_stat_t cmd, RESP_CODE response_code)
 	resp.data = (uint8_t)response_code;
 	resp.crc = calculate_crc16((uint8_t *)&resp,resp.len + 2 );
 	resp.end_byte = PACKET_END_MARKER;
-	CDC_Transmit_FS((uint8_t *)&resp,resp.len + 6);
+	//CDC_Transmit_FS((uint8_t *)&resp,resp.len + 6);
 }
 
 void process_packet(void)
 {
+	new_packet_captured = 0;
     // Verify CRC
     uint16_t calculated_crc = calculate_crc16(&payload[0], payload_len);  // CMD + LEN + PAYLOAD
     if (received_crc != calculated_crc) {
@@ -279,7 +284,7 @@ void readSlot(uint8_t slotnum)
 	{
 		memset(readbuf,0, sizeof(readbuf));
 		//ef_ReadBuffer(readbuf, FW_ADDR_SPIFLASH + read_index, sizeof(readbuf));
-		CDC_Transmit_FS((uint8_t *)&readbuf,sizeof(readbuf));
+		//CDC_Transmit_FS((uint8_t *)&readbuf,sizeof(readbuf));
 	}
 }
 void UpdateFirmware(void)

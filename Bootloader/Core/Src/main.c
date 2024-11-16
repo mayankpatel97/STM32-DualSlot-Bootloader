@@ -18,11 +18,12 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "usb_device.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "stdio.h"
+#include "boot.h"
+#include "exflash.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -41,7 +42,9 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-SPI_HandleTypeDef hspi1;
+SPI_HandleTypeDef hspi2;
+
+UART_HandleTypeDef huart1;
 
 /* USER CODE BEGIN PV */
 
@@ -50,39 +53,25 @@ SPI_HandleTypeDef hspi1;
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_SPI1_Init(void);
+static void MX_USART1_UART_Init(void);
+static void MX_SPI2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-#ifdef __GNUC__
-/* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
-   set to 'Yes') calls __io_putchar() */
 #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
-#else
-#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
-#endif /* __GNUC__ */
-#define DBG_BUFF_LEN 64
-char dbg_buff[DBG_BUFF_LEN];
-uint8_t dbg_buff_idx;
+
 PUTCHAR_PROTOTYPE
 {
 
-	if(dbg_buff_idx<DBG_BUFF_LEN)
-	{
-		dbg_buff[dbg_buff_idx++] = ch;
-	}
-
-	if(ch == '\n' || ch == '\r')
-	{
-	  CDC_Transmit_FS((uint8_t *)&dbg_buff[0], dbg_buff_idx);
-	  dbg_buff_idx=0;
-	}
+	HAL_UART_Transmit(&huart1, &ch, 1, HAL_MAX_DELAY);
 
 	return ch;
 }
+
+uint8_t wbuff[16], rbuff[16];
 /* USER CODE END 0 */
 
 /**
@@ -113,58 +102,29 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_SPI1_Init();
-  MX_USB_DEVICE_Init();
+  MX_USART1_UART_Init();
+  MX_SPI2_Init();
   /* USER CODE BEGIN 2 */
-  // Initialize the flash memory
-  if (ef_Init() != HAL_OK) {
-      printf("Flash memory initialization failed.\n");
-      return;
-  }
-  printf("Flash memory initialized successfully.\n");
 
-  // Read the flash memory ID
-  uint16_t flashID = ef_ReadID();
-  printf("Flash Memory ID: 0x%X\n", flashID);
+  ef_readid();
 
-  // Define an address to perform read/write operations
-  uint32_t address = 0x000000;  // Starting address
-  uint8_t dataToWrite[256];     // Data buffer to write (max page size)
-  uint8_t dataRead[256];        // Buffer to store the read data
 
-  // Fill dataToWrite with example values
-  for (int i = 0; i < 256; i++) {
-      dataToWrite[i] = i;
-  }
+  ef_GlobalBlockProtectionUnlock();
 
-  // Erase a sector before writing
-  if (ef_EraseSector(address) != HAL_OK) {
-      printf("Failed to erase sector at address: 0x%06X\n", address);
-      return;
-  }
-  printf("Sector erased at address: 0x%06X\n", address);
+  for(int i=0;i <16;i++)
+	  wbuff[i] = i;
 
-  // Write a page (up to 256 bytes) to the flash memory
-  if (ef_WritePage(address, dataToWrite, 256) != HAL_OK) {
-      printf("Failed to write page at address: 0x%06X\n", address);
-      return;
-  }
-  printf("Page written successfully at address: 0x%06X\n", address);
+  ef_WriteBuffer(wbuff, 0x200000 , 16);
 
-  // Read the page back from the flash memory
-  if (ef_ReadData(address, dataRead, 256) != HAL_OK) {
-      printf("Failed to read data from address: 0x%06X\n", address);
-      return;
+  HAL_Delay(100);
+
+  ef_ReadBuffer(&rbuff[0], 0x200000 , 16);
+
+  for(int i=0;i <16;i++)
+  {
+	  printf("%d ", rbuff[i]);
   }
 
-  // Verify that the read data matches the written data
-  for (int i = 0; i < 256; i++) {
-      if (dataRead[i] != dataToWrite[i]) {
-          printf("Data mismatch at byte %d\n", i);
-          return;
-      }
-  }
-  printf("Data verified successfully!\n");
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -173,10 +133,15 @@ int main(void)
   {
 	  //printf("I am Mayank Patel. How are you?\n");
 
-	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
-	  HAL_Delay(35);
-	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
-	  HAL_Delay(2000);
+//	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+//	  HAL_Delay(35);
+//	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+//	  HAL_Delay(2000);
+
+	  if(is_new_packet())
+	  {
+          process_packet();  // Validate and process the packet
+	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -230,40 +195,73 @@ void SystemClock_Config(void)
 }
 
 /**
-  * @brief SPI1 Initialization Function
+  * @brief SPI2 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_SPI1_Init(void)
+static void MX_SPI2_Init(void)
 {
 
-  /* USER CODE BEGIN SPI1_Init 0 */
+  /* USER CODE BEGIN SPI2_Init 0 */
 
-  /* USER CODE END SPI1_Init 0 */
+  /* USER CODE END SPI2_Init 0 */
 
-  /* USER CODE BEGIN SPI1_Init 1 */
+  /* USER CODE BEGIN SPI2_Init 1 */
 
-  /* USER CODE END SPI1_Init 1 */
-  /* SPI1 parameter configuration*/
-  hspi1.Instance = SPI1;
-  hspi1.Init.Mode = SPI_MODE_MASTER;
-  hspi1.Init.Direction = SPI_DIRECTION_2LINES;
-  hspi1.Init.DataSize = SPI_DATASIZE_8BIT;
-  hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
-  hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
-  hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
-  hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
-  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
-  hspi1.Init.CRCPolynomial = 10;
-  if (HAL_SPI_Init(&hspi1) != HAL_OK)
+  /* USER CODE END SPI2_Init 1 */
+  /* SPI2 parameter configuration*/
+  hspi2.Instance = SPI2;
+  hspi2.Init.Mode = SPI_MODE_MASTER;
+  hspi2.Init.Direction = SPI_DIRECTION_2LINES;
+  hspi2.Init.DataSize = SPI_DATASIZE_8BIT;
+  hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
+  hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
+  hspi2.Init.NSS = SPI_NSS_SOFT;
+  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
+  hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
+  hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
+  hspi2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+  hspi2.Init.CRCPolynomial = 10;
+  if (HAL_SPI_Init(&hspi2) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN SPI1_Init 2 */
+  /* USER CODE BEGIN SPI2_Init 2 */
 
-  /* USER CODE END SPI1_Init 2 */
+  /* USER CODE END SPI2_Init 2 */
+
+}
+
+/**
+  * @brief USART1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_USART1_UART_Init(void)
+{
+
+  /* USER CODE BEGIN USART1_Init 0 */
+
+  /* USER CODE END USART1_Init 0 */
+
+  /* USER CODE BEGIN USART1_Init 1 */
+
+  /* USER CODE END USART1_Init 1 */
+  huart1.Instance = USART1;
+  huart1.Init.BaudRate = 115200;
+  huart1.Init.WordLength = UART_WORDLENGTH_8B;
+  huart1.Init.StopBits = UART_STOPBITS_1;
+  huart1.Init.Parity = UART_PARITY_NONE;
+  huart1.Init.Mode = UART_MODE_TX_RX;
+  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN USART1_Init 2 */
+
+  /* USER CODE END USART1_Init 2 */
 
 }
 
@@ -309,6 +307,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(FLASH_CS_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PB4 */
+  GPIO_InitStruct.Pin = GPIO_PIN_4;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */

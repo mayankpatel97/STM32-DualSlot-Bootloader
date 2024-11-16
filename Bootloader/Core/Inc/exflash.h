@@ -1,22 +1,14 @@
-#ifndef EF_FLASH_H
-#define EF_FLASH_H
+#ifndef __EXTFLASH__
+#define __EXTFLASH__
 
 #include "main.h"
 
-/* SPI handle */
-extern SPI_HandleTypeDef hspi1;
+void ef_ChipErase(void);
+void ef_WriteEnable(void);
+void ef_WritePage(uint8_t* pBuffer, uint32_t WriteAddr, uint32_t NumByteToWrite);
+void ef_EraseSector(uint32_t SectorAddr);
+void ef_ReadBuffer(uint8_t* pBuffer, uint32_t ReadAddr, uint32_t NumByteToRead);
+void ef_WriteBuffer(uint8_t* pBuffer, uint32_t WriteAddr, uint32_t NumByteToWrite);
+void ef_GlobalBlockProtectionUnlock(void);
 
-/* CS Pin configuration */
-#define EF_CS_PIN               GPIO_PIN_4
-#define EF_CS_PORT              GPIOA
-
-/* Functions */
-HAL_StatusTypeDef ef_Init(void);
-uint16_t ef_ReadID(void);
-HAL_StatusTypeDef ef_ReadData(uint32_t address, uint8_t* data, uint32_t size);
-HAL_StatusTypeDef ef_WritePage(uint32_t address, uint8_t* data, uint16_t size);
-HAL_StatusTypeDef ef_EraseSector(uint32_t address);
-HAL_StatusTypeDef ef_EraseBlock(uint32_t address);
-HAL_StatusTypeDef ef_EraseChip(void);
-
-#endif // EF_FLASH_H
+#endif
