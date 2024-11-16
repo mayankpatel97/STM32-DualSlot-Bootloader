@@ -30,10 +30,13 @@ PACKET_END          = 0x05
 PACKET_UPDATEFW     = 0x06
 PACKET_READSLOT0    = 0x07
 PACKET_READSLOT1    = 0x08
+PACKET_ERASESLOT0   = 0x09
+PACKET_ERASESLOT1   = 0x0A
+
 
 FW_DATA_CHUNKSIZE   = 224
 
-MENU = ["Exit", "Update Firmware", "Read Slot 0", "Read Slot 1"]
+MENU = ["Exit", "Update Firmware", "Read Slot 0", "Read Slot 1", "Erase Slot0"]
 
 # Initialize colorama
 init(autoreset=True)
@@ -220,7 +223,7 @@ def update_fw(port):
           ''')
 
     while True:
-        decision = input("Press Y to update and N to abort. ")
+        decision = input("Press Y to update and N to abort: ")
         if decision == "n" or decision == "N":
             print(Fore.RED + "firmware update abort.")
             exit(1)
@@ -287,7 +290,9 @@ def update_fw(port):
     print("Sending end packet")
     serial_sendPacket(board, PACKET_END, bytearray([0x01]), 1)
     # wait for response 
-    if ota_check_response(board,PACKET_END) == NACK: exit(1)
+    if ota_check_response(board,PACKET_END) == NACK: 
+        print("NACK Received.")
+        exit(1)
 
     time.sleep(1)
     print("Sending update packet")
@@ -338,17 +343,21 @@ if __name__ == "__main__":
             #
             #
 
-            print(f"\n0F 0E 0D 0C 0B 0A 09 08 07 06 05 04 03 02 01 00")
-            print(f"\n-----------------------------------------------")
+            print("Address    Hexadecimal Data                                  ASCII\n");
+            print("--------   -----------------------------------------------   ----------------\n");
+
             start = time.time()
             while True: 
                 bytes = board.readall()
-                print(bytes)
+                print(bytes.decode('utf-8'))
 
                 curr = time.time()
                 if curr > (start + 5): break
 
-
+        elif    int(selected_idx) == 4:
+            print("Sending memory erase packet")
+            serial_sendPacket(board, PACKET_ERASESLOT0, bytearray([0x01]), 1)
+            if ota_check_response(board,PACKET_ERASESLOT0) == NACK: exit(1)
 
 
         else: break

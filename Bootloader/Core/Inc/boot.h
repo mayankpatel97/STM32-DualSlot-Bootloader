@@ -1,5 +1,4 @@
 #ifndef __BOOT__
-
 #define __BOOT__
 
 typedef struct

@@ -45,7 +45,7 @@
 SPI_HandleTypeDef hspi2;
 
 UART_HandleTypeDef huart1;
-
+uint8_t rxdata[2];
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -56,7 +56,7 @@ static void MX_GPIO_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_SPI2_Init(void);
 /* USER CODE BEGIN PFP */
-
+extern void uart_int(uint8_t byte);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -65,13 +65,20 @@ static void MX_SPI2_Init(void);
 
 PUTCHAR_PROTOTYPE
 {
-
-	HAL_UART_Transmit(&huart1, &ch, 1, HAL_MAX_DELAY);
-
-	return ch;
+	//HAL_UART_Transmit(&huart1, &ch, 1, HAL_MAX_DELAY);
+	//return ch;
 }
 
 uint8_t wbuff[16], rbuff[16];
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	if(huart == &huart1)
+	{
+		uart_int(rxdata[0]);
+		HAL_UART_Receive_IT(&huart1, &rxdata[0], 1);
+	}
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -110,9 +117,11 @@ int main(void)
 
 
   ef_GlobalBlockProtectionUnlock();
+  HAL_UART_Receive_IT(&huart1, &rxdata[0], 1);
 
-  for(int i=0;i <16;i++)
-	  wbuff[i] = i;
+  ef_EraseSector(0x200000);
+
+  for(int i=0;i <16;i++) wbuff[i] = i+20;
 
   ef_WriteBuffer(wbuff, 0x200000 , 16);
 
@@ -125,23 +134,18 @@ int main(void)
 	  printf("%d ", rbuff[i]);
   }
 
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  //printf("I am Mayank Patel. How are you?\n");
 
-//	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
-//	  HAL_Delay(35);
-//	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
-//	  HAL_Delay(2000);
-
-	  if(is_new_packet())
-	  {
-          process_packet();  // Validate and process the packet
-	  }
+	if(is_new_packet())
+	{
+	  process_packet();  // Validate and process the packet
+	}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

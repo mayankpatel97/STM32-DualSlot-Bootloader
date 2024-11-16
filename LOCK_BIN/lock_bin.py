@@ -199,7 +199,8 @@ def lock_bin():
     print(Fore.GREEN + "Starting the firmware encryption process..." + Style.RESET_ALL)
 
     # Encrypt the firmware
-    encrypted_firmware = encrypt_firmware(bin_data, bytearray(KEY))
+    #encrypted_firmware = encrypt_firmware(bin_data, bytearray(KEY))
+    encrypted_firmware = bin_data
     output_content = metadata + encrypted_firmware
     crc32 = calculate_crc32(output_content)
     crc32_byteArray = crc32.to_bytes(4, byteorder='big', signed=False)

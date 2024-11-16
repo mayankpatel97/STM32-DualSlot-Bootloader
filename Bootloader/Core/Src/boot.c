@@ -2,16 +2,16 @@
 
 #include "main.h"
 #include "boot.h"
+#include "exflash.h"
 
 #include <stdarg.h>
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 
-#define PACKET_START_MARKER 0xAA
-#define PACKET_END_MARKER 0xBB
-#define MAX_PACKET_SIZE 256
-#define FW_ADDR_SPIFLASH (uint32_t) 0x00000
+#define PACKET_START_MARKER 	0xAA
+#define PACKET_END_MARKER 		0xBB
+#define MAX_PACKET_SIZE 		256
 
 typedef enum {
     WAIT_FOR_START,
@@ -32,7 +32,9 @@ typedef enum {
     DFU_UPDATE_FW,
 	DFU_READ_SLOT0,
 	DFU_READ_SLOT1,
-    DFU_JUMP_TO_APP
+	DFU_ERASE_SLOT0,
+	DFU_ERASE_SLOT1,
+	DFU_JUMP_TO_APP
 } dfu_stat_t;
 
 typedef enum
@@ -58,6 +60,7 @@ typedef struct
 	uint32_t fw_ver;
 }__attribute__((packed)) fw_info_t;
 
+extern UART_HandleTypeDef huart1;
 PacketState packet_state = WAIT_FOR_START;
 uint8_t packet[MAX_PACKET_SIZE];
 uint8_t payload[MAX_PACKET_SIZE - 6];
@@ -76,6 +79,7 @@ void process_packet(void);
 void writeDataChunk(uint8_t *dat, uint16_t length);
 void UpdateFirmware(void);
 void readSlot(uint8_t slotnum);
+void erase_FwStorageArea(void);
 
 uint16_t calculate_crc16(uint8_t *data, uint16_t length)
 {
@@ -96,10 +100,10 @@ uint16_t calculate_crc16(uint8_t *data, uint16_t length)
 }
 
 
-void uart_int(uint8_t* Buf, uint32_t *Len)
+void uart_int(uint8_t byte)
 {
-    for (uint32_t i = 0; i < *Len; i++) {
-        uint8_t byte = Buf[i];
+//    for (uint32_t i = 0; i < *Len; i++) {
+//        uint8_t byte = Buf[i];
 
         switch (packet_state) {
             case WAIT_FOR_START:
@@ -162,7 +166,7 @@ void uart_int(uint8_t* Buf, uint32_t *Len)
                 packet_state = WAIT_FOR_START;
                 break;
         }
-    }
+//    }
 }
 
 
@@ -181,6 +185,7 @@ static void send_response_packet(dfu_stat_t cmd, RESP_CODE response_code)
 	resp.crc = calculate_crc16((uint8_t *)&resp,resp.len + 2 );
 	resp.end_byte = PACKET_END_MARKER;
 	//CDC_Transmit_FS((uint8_t *)&resp,resp.len + 6);
+	HAL_UART_Transmit(&huart1, (uint8_t *)&resp, resp.len + 6, 200);
 }
 
 void process_packet(void)
@@ -211,9 +216,7 @@ void process_packet(void)
 
 		case DFU_ERASE_MEM:
 			/* erase flash sectors */
-//			ef_readid();
-//			ef_WriteEnable();
-//			ef_ChipErase();
+			erase_FwStorageArea();
 			send_response_packet(DFU_ERASE_MEM,DFU_OK);
 			break;
 		case DFU_HEADER:
@@ -241,7 +244,7 @@ void process_packet(void)
 			break;
 
 		case DFU_END:
-			uint8_t crc_check_ok=0;
+			uint8_t crc_check_ok=1;
 			if(received_fw_len == total_fw_len)
 			{
 				/* perform a crc check here */
@@ -263,7 +266,22 @@ void process_packet(void)
 			readSlot(0);
 			break;
 
+		case DFU_READ_SLOT1:
+
+			break;
+
+		case DFU_ERASE_SLOT0:
+			erase_FwStorageArea();
+			send_response_packet(DFU_ERASE_SLOT0,DFU_OK);
+			break;
+
+		case DFU_ERASE_SLOT1:
+			send_response_packet(DFU_ERASE_SLOT1,DFU_OK);
+			break;
+
+
 		case DFU_JUMP_TO_APP:
+			send_response_packet(DFU_JUMP_TO_APP,DFU_OK);
 			break;
 
 		default:
@@ -273,20 +291,61 @@ void process_packet(void)
 
 void writeDataChunk(uint8_t *dat, uint16_t length)
 {
-	//ef_WriteBuffer(dat, FW_ADDR_SPIFLASH + received_fw_len, length);
+	ef_WriteBuffer(dat, FW_START_ADDR + received_fw_len, length);
 }
 
+
+//#define FW_END_SECTOR_NUM   FW_START_SECTOR_NUM + (64 * FLASH_SPI_SECTOR_SIZE)   // End sector
+void erase_FwStorageArea(void)
+{
+	uint32_t sector_addr;
+	for(uint8_t sect = 0; sect < FW_TOTAL_SECTORS_FW; sect++)
+	{
+		sector_addr = FW_START_ADDR + sect * FLASH_SPI_SECTOR_SIZE;
+		ef_EraseSector(sector_addr);
+	}
+
+}
 
 void readSlot(uint8_t slotnum)
 {
-	static uint8_t readbuf[16];
-	for(int x=0; x < 32; x++)
+	uint8_t readbuf[16];
+	char printbuf[16];
+
+	for(uint32_t addr=FW_START_ADDR; addr<0x1000; addr+=sizeof(readbuf))
 	{
-		memset(readbuf,0, sizeof(readbuf));
-		//ef_ReadBuffer(readbuf, FW_ADDR_SPIFLASH + read_index, sizeof(readbuf));
-		//CDC_Transmit_FS((uint8_t *)&readbuf,sizeof(readbuf));
+		// Print the address
+		sprintf(printbuf,"%08X:  ", addr);
+		HAL_UART_Transmit(&huart1, printbuf, strlen(printbuf), 200);
+		memset(readbuf, 0, sizeof(readbuf));
+		ef_ReadBuffer(readbuf, addr, sizeof(readbuf));
+		for(uint8_t i=0;i<sizeof(readbuf);i++)
+		{
+			sprintf(printbuf,"%.2x ",readbuf[i]);
+			HAL_UART_Transmit(&huart1, printbuf, strlen(printbuf), 200);
+		}
+
+
+        // Print the ASCII representation
+		sprintf(printbuf,"  ");
+		HAL_UART_Transmit(&huart1, printbuf, strlen(printbuf), 200);
+        for (uint8_t i = 0; i < 16; i++) {
+            if (isprint(readbuf[i])) {
+            	sprintf(printbuf,"%c", readbuf[i]);
+            	HAL_UART_Transmit(&huart1, printbuf, strlen(printbuf), 200);
+            } else {
+            	sprintf(printbuf,".");
+            	HAL_UART_Transmit(&huart1, printbuf, strlen(printbuf), 200);
+            }
+        }
+
+
+		sprintf(printbuf,"\r\n");
+		HAL_UART_Transmit(&huart1, printbuf, strlen(printbuf), 200);
+
 	}
 }
+
 void UpdateFirmware(void)
 {
 
